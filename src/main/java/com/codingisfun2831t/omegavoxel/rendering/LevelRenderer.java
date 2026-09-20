@@ -169,4 +169,11 @@ public class LevelRenderer implements LevelListener {
         setDirty(x - 1, y - 1, z - 1, x + 1, y + 1, z + 1);
 
     }
+
+    @Override
+    public void lightColumnChanged(int x, int z, int y0, int y1)
+    {
+        setDirty(x - 1, y0 - 1, z - 1, x + 1, y1 + 1, z + 1);
+    }
+
 }

@@ -73,7 +73,7 @@ public class Block {
     private static final float ZBRIGHT = 0.8F;
     private static final float XBRIGHT = 0.6F;
 
-    protected void renderFace(Renderer r, float x0, float y0, float z0, float x1, float y1, float z1, byte tex, Face face) {
+    protected void renderFace(Renderer r, float x0, float y0, float z0, float x1, float y1, float z1, byte tex, Face face, float b) {
         int u0 = (tex % 16) * 16;
         int v1 = (tex / 16) * 16;
         int u1 = u0 + 16;
@@ -85,7 +85,7 @@ public class Block {
                     case Face.FRONT, Face.BACK -> ZBRIGHT;
                     case Face.RIGHT, Face.LEFT -> XBRIGHT;
                     default -> 1.0F;
-                }
+                } * b
         ));
 
         switch (face) {
@@ -129,15 +129,17 @@ public class Block {
     }
 
     protected void renderCulledFace(Level l, Renderer r, float x0, float y0, float z0, float x1, float y1, float z1, byte tex, Face face) {
+        float b = 1.0F;
         if (l != null) {
             int fx = face.getX((int)x0);
             int fy = face.getY((int)y0);
             int fz = face.getZ((int)z0);
 
             if (l.getBlockID(fx, fy, fz) != 0) return;
+            b = l.getBrightness(fx, fy, fz);
         }
 
-        renderFace(r, x0, y0, z0, x1, y1, z1, tex, face);
+        renderFace(r, x0, y0, z0, x1, y1, z1, tex, face, b);
     }
 
     /**

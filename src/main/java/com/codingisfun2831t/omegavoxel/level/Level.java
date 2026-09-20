@@ -10,6 +10,8 @@ public class Level {
     private int depth;
     private int height;
     private byte[] blocks;
+    private int[] lightDepths;
+
 
     private ArrayList<LevelListener> listeners = new ArrayList<>();
 
@@ -18,12 +20,46 @@ public class Level {
         this.height = height;
         this.depth = depth;
         this.blocks = new byte[width * height * depth];
+        this.lightDepths = new int[width * depth];
+
 
         int surface = height / 2;
         setFullLayers(0, surface - 4, Block.STONE);
         setFullLayers(surface - 4, 3, Block.DIRT);
         setFullLayers(surface - 1, 1, Block.GRASS);
+        calcLightDepths(0, 0, width, depth);
+
     }
+
+    public void calcLightDepths(int x0, int y0, int x1, int y1)
+    {
+        for (int x = x0; x < x0 + x1; x++)
+        {
+            for (int z = y0; z < y0 + y1; z++)
+            {
+                int oldDepth = lightDepths[x + z * width];
+                int y = height - 1;
+
+                while (y > 0 && getBlockID(x, y, z) == 0)
+                {
+                    y--;
+                }
+
+                lightDepths[x + z * width] = y;
+                if (oldDepth != y)
+                {
+                    int yl0 = oldDepth < y ? oldDepth : y;
+                    int yl1 = oldDepth > y ? oldDepth : y;
+
+
+                    for (LevelListener l : listeners) {
+                        l.lightColumnChanged(x, z, yl0, yl1);
+                    }
+                }
+            }
+        }
+    }
+
 
 
     public int getWidth() {
@@ -62,6 +98,7 @@ public class Level {
         if (!inBounds(x, y, z)) return;
 
         blocks[getBlockIndex(x, y, z)] = id;
+        calcLightDepths(x, z, 1, 1);
 
         for (LevelListener l : listeners) {
             l.blockChanged(x, y, z);
@@ -69,13 +106,7 @@ public class Level {
     }
 
     public void setBlock(int x, int y, int z, Block b) {
-        if (!inBounds(x, y, z)) return;
-
-        blocks[getBlockIndex(x, y, z)] = (byte)b.getId();
-
-        for (LevelListener l : listeners) {
-            l.blockChanged(x, y, z);
-        }
+        setBlockID(x, y, z, (byte)b.getId());
     }
 
     public void setFullLayers(int y, int size, Block b) {
@@ -130,4 +161,21 @@ public class Level {
 
         return aABBs;
     }
+
+
+
+    public float getBrightness(int x, int y, int z)
+    {
+        float dark = 0.8F;
+        float light = 1.0F;
+        if (!inBounds(x, y, z))
+        {
+            return light;
+        }
+        else
+        {
+            return y < lightDepths[x + z * width] ? dark : light;
+        }
+    }
+
 }
