@@ -188,12 +188,14 @@ public class Game {
 
         this.levelRenderer.setLevel(level);
         this.navigateTo(null);
+        this.hud.setPlayer(player);
     }
 
     public void quitLevel() {
         this.level = null;
         this.levelRenderer.setLevel(null);
         this.navigateTo(new MainMenuScreen());
+        this.hud.setPlayer(null);
         System.gc();
     }
 
@@ -264,14 +266,35 @@ public class Game {
 
         GLFW.glfwSetKeyCallback(window, (windowHandle, key, scancode, action, mods) -> {
             // Check if the Escape key was pressed
-            if (key == GLFW.GLFW_KEY_ESCAPE && action == GLFW.GLFW_PRESS && level != null) {
-                if (currentScreen != null && currentScreen.pausesGame()) {
-                    navigateTo(null);
-                }
-                else {
-                    navigateTo(new PauseMenu());
+            if (action == GLFW.GLFW_PRESS && level != null) {
+                switch (key) {
+                    case GLFW.GLFW_KEY_ESCAPE:
+                        if (currentScreen != null && currentScreen.pausesGame()) {
+                            navigateTo(null);
+                        }
+                        else {
+                            navigateTo(new PauseMenu());
+                        }
+
+                        break;
+                    case GLFW.GLFW_KEY_1: player.selectedSlot = 0; break;
+                    case GLFW.GLFW_KEY_2: player.selectedSlot = 1; break;
+                    case GLFW.GLFW_KEY_3: player.selectedSlot = 2; break;
+                    case GLFW.GLFW_KEY_4: player.selectedSlot = 3; break;
+                    case GLFW.GLFW_KEY_5: player.selectedSlot = 4; break;
+                    case GLFW.GLFW_KEY_6: player.selectedSlot = 5; break;
+                    case GLFW.GLFW_KEY_7: player.selectedSlot = 6; break;
+                    case GLFW.GLFW_KEY_8: player.selectedSlot = 7; break;
+                    case GLFW.GLFW_KEY_9: player.selectedSlot = 8; break;
+
                 }
             }
+        });
+
+        GLFW.glfwSetScrollCallback(window, (windowHandle, x, y) -> {
+            player.selectedSlot -= y;
+            if (player.selectedSlot < 0) player.selectedSlot = 9 + player.selectedSlot;
+            if (player.selectedSlot > 8) player.selectedSlot = (player.selectedSlot - 9) % 9;
         });
 
         GLFW.glfwSetMouseButtonCallback(window, (windowHandle, button, action, mods) -> {
@@ -297,7 +320,7 @@ public class Game {
                         int fz = hitResult.hitFace.getZ(hitResult.blockPos.z);
 
                         if (level.getBlockID(fx, fy, fz) != 0) break;
-                        level.setBlock(fx, fy, fz, Block.COBBLESTONE);
+                        level.setBlock(fx, fy, fz, player.hotbar[player.selectedSlot]);
                         break;
                 }
             }
@@ -355,6 +378,7 @@ public class Game {
 
             this.uiRenderer.begin(res);
             if (level != null) hud.render(uiRenderer);
+            r.flush();
             if (currentScreen != null) currentScreen.render(uiRenderer);
             this.uiRenderer.end();
 

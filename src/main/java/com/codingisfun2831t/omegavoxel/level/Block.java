@@ -22,6 +22,11 @@ public class Block {
     public static final Block GRASS = new BlockGrass().texture(0, 3, 2).register(2);
     public static final Block DIRT = new Block().texture(2).register(3);
     public static final Block COBBLESTONE = new Block().texture(16).register(4);
+    public static final Block LOG = new Block().texture(21, 20, 21).register(17);
+    public static final Block PLANKS = new Block().texture(4).register(5);
+    public static final Block SAND = new Block().texture(18).register(12);
+    public static final Block GRAVEL = new Block().texture(19).register(13);
+    public static final Block BEDROCK = new Block().texture(17).register(7);
 
     public Block() {
         this.id = 0;

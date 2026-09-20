@@ -1,10 +1,12 @@
 package com.codingisfun2831t.omegavoxel.ui;
 
 import com.codingisfun2831t.omegavoxel.assets.Texture;
+import com.codingisfun2831t.omegavoxel.level.Block;
 import com.codingisfun2831t.omegavoxel.rendering.FontRenderer;
 import com.codingisfun2831t.omegavoxel.rendering.Renderer;
 import com.codingisfun2831t.omegavoxel.rendering.ScaledResolution;
 import org.joml.Vector2i;
+import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Stack;
@@ -34,7 +36,7 @@ public class UIRenderer {
 
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glLoadIdentity();
-        GL11.glOrtho(0.0, res.width, res.height, 0.0, -1.0, 1.0);
+        GL11.glOrtho(0.0, res.width, res.height, 0.0, -100.0, 100.0);
 
         GL11.glMatrixMode(GL11.GL_MODELVIEW);
         GL11.glLoadIdentity();
@@ -149,5 +151,32 @@ public class UIRenderer {
 
     public Texture loadTex(String path) {
         return r.loadTex(path);
+    }
+
+    public void drawBlock(Block block, int x, int y, int scale) {
+        scale *= 0.7f;
+
+        x += translation.x;
+        y += translation.y;
+        r.flush();
+
+        GL11.glMatrixMode(GL11.GL_MODELVIEW);
+        GL11.glPushMatrix();
+
+        GL11.glTranslatef(x + scale / 2.0F, y + scale * 0.6f, 0.0F);
+        GL11.glScalef(scale, -scale, scale);
+        GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
+
+        GL11.glRotatef(30.0F, 1.0F, 0.0F, 0.0F);
+        GL11.glRotatef(45.0F, 0.0F, 1.0F, 0.0F);
+
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+
+        block.render(null, r, 0, 0, 0);
+        r.flush();
+
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+
+        GL11.glPopMatrix();
     }
 }

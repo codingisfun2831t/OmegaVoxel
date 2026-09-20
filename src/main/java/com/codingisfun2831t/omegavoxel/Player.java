@@ -1,5 +1,6 @@
 package com.codingisfun2831t.omegavoxel;
 
+import com.codingisfun2831t.omegavoxel.level.Block;
 import com.codingisfun2831t.omegavoxel.level.Level;
 import net.querz.nbt.tag.CompoundTag;
 import org.lwjgl.glfw.GLFW;
@@ -20,6 +21,11 @@ public class Player {
     public float pitch;
     public AABB bb;
     public boolean onGround = false;
+    public Block[] hotbar = new Block[] {
+            Block.DIRT, Block.GRASS, Block.STONE, Block.COBBLESTONE,
+            Block.LOG, Block.PLANKS, Block.SAND, Block.GRAVEL, Block.BEDROCK
+    };
+    public int selectedSlot = 0;
 
     public void resetPos(Level level) {
         float x = (float)Math.random() * (float) level.getWidth();
