@@ -10,6 +10,7 @@ import com.codingisfun2831t.omegavoxel.ui.LayoutContext;
 import com.codingisfun2831t.omegavoxel.ui.Screen;
 import com.codingisfun2831t.omegavoxel.ui.UIRenderer;
 import com.codingisfun2831t.omegavoxel.ui.screens.HUD;
+import com.codingisfun2831t.omegavoxel.ui.screens.MainMenuScreen;
 import com.codingisfun2831t.omegavoxel.ui.screens.PauseMenu;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
@@ -120,12 +121,16 @@ public class Game {
     }
 
     private boolean unpaused() {
+        if (level == null) return false;
+
         return currentScreen == null || !currentScreen.pausesGame();
     }
 
     private static final File levelDat = new File("level.dat");
 
     public void saveLevel() {
+        if (level == null) return;
+
         try (DataOutputStream out = new DataOutputStream(
                 new FileOutputStream(levelDat))) {
 
@@ -138,12 +143,54 @@ public class Game {
             out.writeShort(level.getDepth());
 
             level.saveTo(out);
-        }
-        catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void close() {
+        GLFW.glfwSetWindowShouldClose(window, true);
+    }
+
+    public void play() {
+        if (levelDat.exists()) {
+            try (DataInputStream in = new DataInputStream(
+                    new FileInputStream(levelDat))) {
+
+                float x = in.readFloat();
+                float y = in.readFloat();
+                float z = in.readFloat();
+
+                short width = in.readShort();
+                short height = in.readShort();
+                short depth = in.readShort();
+
+                byte[] blocks;
+                try (GZIPInputStream gzip = new GZIPInputStream(in)) {
+                    blocks = gzip.readAllBytes();
+                }
+
+                this.level = new Level(width, height, depth, blocks);
+                this.player.setPos(x, y, z);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            this.level = new Level(128, 128, 128);
+            this.player.resetPos(level);
+
+            saveLevel();
+        }
+
+        this.levelRenderer.setLevel(level);
+        this.navigateTo(null);
+    }
+
+    public void quitLevel() {
+        this.level = null;
+        this.levelRenderer.setLevel(null);
+        this.navigateTo(new MainMenuScreen());
+        System.gc();
     }
 
     private void mainLoop() {
@@ -163,50 +210,15 @@ public class Game {
         this.r.useTextures(textures);
         this.text = new FontRenderer(r, textures);
         this.uiRenderer = new UIRenderer(r, text);
-
-
-        if (levelDat.exists()) {
-            try (DataInputStream in = new DataInputStream(
-                    new FileInputStream(levelDat))) {
-
-                float x = in.readFloat();
-                float y = in.readFloat();
-                float z = in.readFloat();
-
-                short width = in.readShort();
-                short height = in.readShort();
-                short depth = in.readShort();
-
-                byte[] blocks;
-                try (GZIPInputStream gzip = new GZIPInputStream(in)) {
-                    blocks = gzip.readAllBytes();
-                }
-
-                this.level = new Level(width, height, depth, blocks);
-                this.levelRenderer = new LevelRenderer(level, r);
-                this.player = new Player(level);
-                this.player.x = x;
-                this.player.y = y;
-                this.player.z = z;
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            this.level = new Level(128, 128, 128);
-            this.levelRenderer = new LevelRenderer(level, r);
-            this.player = new Player(level);
-
-            saveLevel();
-        }
-
-
-
-        this.cam.position.set(0, (float) (level.getHeight() * 0.75), 0);
+        this.levelRenderer = new LevelRenderer(r);
+        this.player = new Player();
 
         this.hud.game = this;
         this.hud.init();
 
         updateUiRes();
+        this.navigateTo(new MainMenuScreen());
+
         GLFW.glfwSetFramebufferSizeCallback(window, (window, width, height) -> {
             this.width = width;
             this.height = height;
@@ -248,7 +260,7 @@ public class Game {
 
         GLFW.glfwSetKeyCallback(window, (windowHandle, key, scancode, action, mods) -> {
             // Check if the Escape key was pressed
-            if (key == GLFW.GLFW_KEY_ESCAPE && action == GLFW.GLFW_PRESS) {
+            if (key == GLFW.GLFW_KEY_ESCAPE && action == GLFW.GLFW_PRESS && level != null) {
                 if (currentScreen != null && currentScreen.pausesGame()) {
                     navigateTo(null);
                 }
@@ -264,7 +276,7 @@ public class Game {
                 return;
             }
 
-            if (action == GLFW.GLFW_PRESS) {
+            if (action == GLFW.GLFW_PRESS && level != null) {
                 switch (button) {
                     case GLFW.GLFW_MOUSE_BUTTON_LEFT:
                         level.setBlockID(
@@ -290,8 +302,6 @@ public class Game {
         GLFW.glfwShowWindow(window);
         GLFW.glfwFocusWindow(window);
 
-        GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
-
         GL11.glEnable(GL11.GL_DEPTH_TEST);
         GL11.glDepthFunc(GL11.GL_LEQUAL);
         GL11.glEnable(GL11.GL_CULL_FACE);
@@ -302,13 +312,13 @@ public class Game {
         while (!GLFW.glfwWindowShouldClose(window)) {
             Chunk.updatesThisFrame = 0;
 
-            GL11.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            GL11.glClearColor(0.47f, 0.63f, 0.80f, 1.0f);
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
             int ticks = moveTimer.update();
             for (int i = 0; i < ticks; i++) {
                 if (unpaused()) {
-                    player.tick(window);
+                    player.tick(level, window);
                 }
             }
 
@@ -324,21 +334,23 @@ public class Game {
                 cam.pitch = player.pitch;
             }
 
-            cam.applyProjection(width, height);
-            cam.applyViewMatrix();
+            if (level != null) {
+                cam.applyProjection(width, height);
+                cam.applyViewMatrix();
 
-            Raycast.raycast(cam.position, cam.getDirection(), 5, level, hitResult);
+                Raycast.raycast(cam.position, cam.getDirection(), 5, level, hitResult);
 
-            GL11.glEnable(GL11.GL_DEPTH_TEST);
-            GL11.glEnable(GL11.GL_CULL_FACE);
-            GL11.glEnable(GL11.GL_ALPHA_TEST);
-            levelRenderer.render(cam);
-            levelRenderer.drawSelectionBox(hitResult);
+                GL11.glEnable(GL11.GL_DEPTH_TEST);
+                GL11.glEnable(GL11.GL_CULL_FACE);
+                GL11.glEnable(GL11.GL_ALPHA_TEST);
+                levelRenderer.render(cam);
+                levelRenderer.drawSelectionBox(hitResult);
 
-            r.flush();
+                r.flush();
+            }
 
             this.uiRenderer.begin(res);
-            hud.render(uiRenderer);
+            if (level != null) hud.render(uiRenderer);
             if (currentScreen != null) currentScreen.render(uiRenderer);
             this.uiRenderer.end();
 

@@ -6,10 +6,10 @@ import com.codingisfun2831t.omegavoxel.ui.widgets.Background;
 import com.codingisfun2831t.omegavoxel.ui.widgets.Button;
 import com.codingisfun2831t.omegavoxel.ui.widgets.Label;
 
-public class PauseMenu extends Screen {
+public class MainMenuScreen extends Screen {
     private Label pauseLabel;
     private Background bg;
-    private Button backToGame;
+    private Button play;
     private Button quit;
 
     @Override
@@ -17,17 +17,16 @@ public class PauseMenu extends Screen {
         bg = new Background();
         root.addChild(bg);
 
-        pauseLabel = new Label("Pause Menu");
+        pauseLabel = new Label("OmegaVoxel");
         root.addChild(pauseLabel);
 
-        backToGame = new Button("Back to Game", 200, () -> {
-            game.navigateTo(null);
+        play = new Button("Play", 200, () -> {
+            game.play();
         });
-        root.addChild(backToGame);
+        root.addChild(play);
 
-        quit = new Button("Save and Quit Game", 200, () -> {
-            game.saveLevel();
-            game.quitLevel();
+        quit = new Button("Quit Game", 200, () -> {
+            game.close();
         });
         root.addChild(quit);
     }
@@ -41,16 +40,11 @@ public class PauseMenu extends Screen {
         pauseLabel.setTop(100);
         int buttonY = pauseLabel.getBottom() + 10;
 
-        backToGame.setCenterX(root.getCenterX());
-        backToGame.setTop(buttonY);
-        buttonY = backToGame.getBottom() + 4;
+        play.setCenterX(root.getCenterX());
+        play.setTop(buttonY);
+        buttonY = play.getBottom() + 4;
 
         quit.setCenterX(root.getCenterX());
         quit.setTop(buttonY);
-    }
-
-    @Override
-    public boolean pausesGame() {
-        return true;
     }
 }

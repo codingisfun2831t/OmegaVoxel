@@ -20,32 +20,48 @@ public class LevelRenderer implements LevelListener {
         return (y * zChunks + z) * xChunks + x;
     }
 
-    public LevelRenderer(Level lvl, Renderer r) {
-        this.lvl = lvl;
-        this.lvl.addListener(this);
+    public LevelRenderer(Renderer r) {
         this.r = r;
+    }
 
-        this.xChunks = (lvl.getWidth() + Chunk.CHUNK_SIZE - 1) / Chunk.CHUNK_SIZE;
-        this.yChunks = (lvl.getHeight() + Chunk.CHUNK_SIZE - 1) / Chunk.CHUNK_SIZE;
-        this.zChunks = (lvl.getDepth() + Chunk.CHUNK_SIZE - 1) / Chunk.CHUNK_SIZE;
-        this.chunks = new Chunk[xChunks * yChunks * zChunks];
+    public void setLevel(Level lvl) {
+        if (this.lvl != null) {
+            this.lvl.removeListener(this);
 
-        for (int x = 0; x < xChunks; x++) {
-            for (int y = 0; y < yChunks; y++) {
-                for (int z = 0; z < zChunks; z++) {
-                    this.chunks[getChunkIndex(x, y, z)] = new Chunk(
-                            lvl,
-                            r,
-                            x * Chunk.CHUNK_SIZE,
-                            y * Chunk.CHUNK_SIZE,
-                            z * Chunk.CHUNK_SIZE
-                    );
+            for (Chunk chunk : chunks) {
+                chunk.destroy();
+            }
+
+            chunks = null;
+        }
+
+        this.lvl = lvl;
+        if (lvl != null) {
+            this.xChunks = (lvl.getWidth() + Chunk.CHUNK_SIZE - 1) / Chunk.CHUNK_SIZE;
+            this.yChunks = (lvl.getHeight() + Chunk.CHUNK_SIZE - 1) / Chunk.CHUNK_SIZE;
+            this.zChunks = (lvl.getDepth() + Chunk.CHUNK_SIZE - 1) / Chunk.CHUNK_SIZE;
+            this.chunks = new Chunk[xChunks * yChunks * zChunks];
+
+            for (int x = 0; x < xChunks; x++) {
+                for (int y = 0; y < yChunks; y++) {
+                    for (int z = 0; z < zChunks; z++) {
+                        this.chunks[getChunkIndex(x, y, z)] = new Chunk(
+                                lvl,
+                                r,
+                                x * Chunk.CHUNK_SIZE,
+                                y * Chunk.CHUNK_SIZE,
+                                z * Chunk.CHUNK_SIZE
+                        );
+                    }
                 }
             }
+
+            lvl.addListener(this);
         }
     }
 
     public void render(Camera c) {
+        if (lvl == null) return;
         for (Chunk chunk : chunks) {
             if (chunk.isVisible(c))
                 chunk.render();

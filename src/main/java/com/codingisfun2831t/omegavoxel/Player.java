@@ -6,7 +6,6 @@ import org.lwjgl.glfw.GLFW;
 import java.util.ArrayList;
 
 public class Player {
-    private Level level;
     public float xo;
     public float yo;
     public float zo;
@@ -21,19 +20,14 @@ public class Player {
     public AABB bb;
     public boolean onGround = false;
 
-    public Player(Level level) {
-        this.level = level;
-        this.resetPos();
-    }
-
-    public void resetPos() {
-        float x = (float)Math.random() * (float) this.level.getWidth();
-        float y = (float)(this.level.getDepth() + 10);
-        float z = (float)Math.random() * (float) this.level.getHeight();
+    public void resetPos(Level level) {
+        float x = (float)Math.random() * (float) level.getWidth();
+        float y = (float)(level.getDepth() + 10);
+        float z = (float)Math.random() * (float) level.getHeight();
         this.setPos(x, y, z);
     }
 
-    private void setPos(float x, float y, float z) {
+    public void setPos(float x, float y, float z) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -59,14 +53,14 @@ public class Player {
         return GLFW.glfwGetKey(window, key) == GLFW.GLFW_PRESS;
     }
 
-    public void tick(long window) {
+    public void tick(Level level, long window) {
         this.xo = this.x;
         this.yo = this.y;
         this.zo = this.z;
         float xa = 0.0F;
         float ya = 0.0F;
         if(isKeyDown(window, GLFW.GLFW_KEY_R)) {
-            this.resetPos();
+            this.resetPos(level);
         }
         if(isKeyDown(window, GLFW.GLFW_KEY_UP) || isKeyDown(window, GLFW.GLFW_KEY_W)) {
             --ya;
@@ -90,7 +84,7 @@ public class Player {
 
         this.moveRelative(xa, ya, this.onGround ? 0.02F : 0.005F);
         this.yd = (float)((double)this.yd - 0.005D);
-        this.move(this.xd, this.yd, this.zd);
+        this.move(level, this.xd, this.yd, this.zd);
         this.xd *= 0.91F;
         this.yd *= 0.98F;
         this.zd *= 0.91F;
@@ -101,11 +95,11 @@ public class Player {
 
     }
 
-    public void move(float xa, float ya, float za) {
+    public void move(Level level, float xa, float ya, float za) {
         float xaOrg = xa;
         float yaOrg = ya;
         float zaOrg = za;
-        ArrayList aABBs = this.level.getCubes(this.bb.expand(xa, ya, za));
+        ArrayList aABBs = level.getCubes(this.bb.expand(xa, ya, za));
 
         int i;
         for(i = 0; i < aABBs.size(); ++i) {

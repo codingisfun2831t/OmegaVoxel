@@ -135,6 +135,7 @@ public class Level {
     public void addListener(LevelListener l) {
         listeners.add(l);
     }
+    public void removeListener(LevelListener l) { listeners.remove(l);}
 
     public ArrayList<AABB> getCubes(AABB aABB) {
         ArrayList aABBs = new ArrayList();
@@ -198,8 +199,8 @@ public class Level {
     }
 
     public void saveTo(DataOutputStream out) throws IOException {
-        try (GZIPOutputStream gzip = new GZIPOutputStream(out)) {
-            gzip.write(blocks);
-        }
+        GZIPOutputStream gzip = new GZIPOutputStream(out);
+        gzip.write(blocks);
+        gzip.finish();
     }
 }

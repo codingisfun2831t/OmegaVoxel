@@ -66,6 +66,10 @@ public class Chunk {
         dirty = false;
     }
 
+    public void destroy() {
+        GL11.glDeleteLists(list, 1);
+    }
+
     public void render() {
         if (dirty && updatesThisFrame < MAX_UPDATES) {
             rebuild();
