@@ -149,7 +149,7 @@
                         <phase>package</phase>
                         <goals><goal>shade</goal></goals>
                         <configuration>
-                            <finalName>OmegaVoxel-windows-${version}</finalName>
+                            <finalName>OmegaVoxel-windows-C${version}</finalName>
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>
@@ -172,7 +172,7 @@
                         <phase>package</phase>
                         <goals><goal>shade</goal></goals>
                         <configuration>
-                            <finalName>OmegaVoxel-linux-${version}</finalName>
+                            <finalName>OmegaVoxel-linux-C${version}</finalName>
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>
@@ -195,7 +195,7 @@
                         <phase>package</phase>
                         <goals><goal>shade</goal></goals>
                         <configuration>
-                            <finalName>OmegaVoxel-mac-${version}</finalName>
+                            <finalName>OmegaVoxel-mac-C${version}</finalName>
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>
