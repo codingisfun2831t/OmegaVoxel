@@ -16,9 +16,9 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Properties;
+import java.util.zip.GZIPInputStream;
 
 public class Game {
     public static String VERSION;
@@ -123,6 +123,7 @@ public class Game {
         return currentScreen == null || !currentScreen.pausesGame();
     }
 
+    private static final File levelDat = new File("level.dat");
     private void mainLoop() {
         GLFW.glfwInit();
 
@@ -138,11 +139,43 @@ public class Game {
         this.assets = new Assets();
         this.textures = new Textures(assets);
         this.r.useTextures(textures);
-        this.level = new Level(128, 128, 128);
-        this.levelRenderer = new LevelRenderer(level, r);
         this.text = new FontRenderer(r, textures);
         this.uiRenderer = new UIRenderer(r, text);
-        this.player = new Player(level);
+
+
+        if (levelDat.exists()) {
+            try (DataInputStream in = new DataInputStream(
+                    new FileInputStream(levelDat))) {
+
+                float x = in.readFloat();
+                float y = in.readFloat();
+                float z = in.readFloat();
+
+                short width = in.readShort();
+                short height = in.readShort();
+                short depth = in.readShort();
+
+                byte[] blocks;
+                try (GZIPInputStream gzip = new GZIPInputStream(in)) {
+                    blocks = gzip.readAllBytes();
+                }
+
+                this.level = new Level(width, height, depth, blocks);
+                this.levelRenderer = new LevelRenderer(level, r);
+                this.player = new Player(level);
+                this.player.x = x;
+                this.player.y = y;
+                this.player.z = z;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            this.level = new Level(128, 128, 128);
+            this.levelRenderer = new LevelRenderer(level, r);
+            this.player = new Player(level);
+        }
+
+
 
         this.cam.position.set(0, (float) (level.getHeight() * 0.75), 0);
 
@@ -299,6 +332,25 @@ public class Game {
                 this.frames = 0;
                 Chunk.totalUpdates = 0;
             }
+        }
+
+        try (DataOutputStream out = new DataOutputStream(
+                new FileOutputStream(levelDat))) {
+
+            out.writeFloat(player.x);
+            out.writeFloat(player.y);
+            out.writeFloat(player.z);
+
+            out.writeShort(level.getWidth());
+            out.writeShort(level.getHeight());
+            out.writeShort(level.getDepth());
+
+            level.saveTo(out);
+        }
+        catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
         r.destroy();

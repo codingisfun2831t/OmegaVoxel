@@ -1,7 +1,8 @@
 target/
 
-# for runtime assets dir
+# from app
 assets/
+level.dat
 
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/

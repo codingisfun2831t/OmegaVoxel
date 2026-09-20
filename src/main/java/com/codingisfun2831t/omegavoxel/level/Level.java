@@ -2,8 +2,13 @@ package com.codingisfun2831t.omegavoxel.level;
 
 import com.codingisfun2831t.omegavoxel.AABB;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 public class Level {
     private int width;
@@ -29,6 +34,20 @@ public class Level {
         setFullLayers(surface - 1, 1, Block.GRASS);
         calcLightDepths(0, 0, width, depth);
 
+    }
+
+    public Level(int width, int height, int depth, byte[] blocks) {
+        this.width = width;
+        this.height = height;
+        this.depth = depth;
+        this.blocks = blocks;
+
+        if (blocks.length != width * height * depth) {
+            throw new RuntimeException("Blocks array is not right size!");
+        }
+
+        this.lightDepths = new int[width * depth];
+        calcLightDepths(0, 0, width, depth);
     }
 
     public void calcLightDepths(int x0, int y0, int x1, int y1)
@@ -178,4 +197,9 @@ public class Level {
         }
     }
 
+    public void saveTo(DataOutputStream out) throws IOException {
+        try (GZIPOutputStream gzip = new GZIPOutputStream(out)) {
+            gzip.write(blocks);
+        }
+    }
 }
