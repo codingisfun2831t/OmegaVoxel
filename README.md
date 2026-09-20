@@ -7,6 +7,8 @@ Currently only in Creative though I plan to make it survival after the Creative 
  * Basic voxel rendering, full blocks only. Stone, Cobblestone, Dirt, and Grass.
  * Buttons. That's it. And labels of course
  * No hotbar or block selection, so you always have cobble.
+ * Main menu, along with a nice blue sky
+ * Level loading/saving with NBT
 
 ## Running
 Download the latest version for your OS (`linux`, `mac`, or `windows`). Run with Java.
@@ -27,5 +29,7 @@ java -XstartOnFirstThread -jar OmegaVoxel-mac-[version].jar
 ```
 
 ## Screenshot
-This is what it actually looks like! Very lackluster...
-![Screenshot inside a Cobblestone house looking out into a flat world of grass](doc/screenshot.png)
+This is what it actually looks like!
+![Screenshot looking at a face](doc/screenshot.png)
+![Pause menu](doc/pause.png)
+![Main Menu](doc/main_menu.png)
