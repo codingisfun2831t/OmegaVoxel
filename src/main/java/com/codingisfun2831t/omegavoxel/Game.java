@@ -124,6 +124,28 @@ public class Game {
     }
 
     private static final File levelDat = new File("level.dat");
+
+    public void saveLevel() {
+        try (DataOutputStream out = new DataOutputStream(
+                new FileOutputStream(levelDat))) {
+
+            out.writeFloat(player.x);
+            out.writeFloat(player.y);
+            out.writeFloat(player.z);
+
+            out.writeShort(level.getWidth());
+            out.writeShort(level.getHeight());
+            out.writeShort(level.getDepth());
+
+            level.saveTo(out);
+        }
+        catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private void mainLoop() {
         GLFW.glfwInit();
 
@@ -173,6 +195,8 @@ public class Game {
             this.level = new Level(128, 128, 128);
             this.levelRenderer = new LevelRenderer(level, r);
             this.player = new Player(level);
+
+            saveLevel();
         }
 
 
@@ -334,25 +358,8 @@ public class Game {
             }
         }
 
-        try (DataOutputStream out = new DataOutputStream(
-                new FileOutputStream(levelDat))) {
 
-            out.writeFloat(player.x);
-            out.writeFloat(player.y);
-            out.writeFloat(player.z);
-
-            out.writeShort(level.getWidth());
-            out.writeShort(level.getHeight());
-            out.writeShort(level.getDepth());
-
-            level.saveTo(out);
-        }
-        catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
+        saveLevel();
         r.destroy();
         GLFW.glfwDestroyWindow(window);
         GLFW.glfwTerminate();
