@@ -1,6 +1,7 @@
 package com.codingisfun2831t.omegavoxel;
 
 import com.codingisfun2831t.omegavoxel.level.Level;
+import net.querz.nbt.tag.CompoundTag;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -148,5 +149,27 @@ public class Player {
             this.xd += xa * cos + za * sin;
             this.zd += za * cos - xa * sin;
         }
+    }
+
+    public CompoundTag getNBT() {
+        CompoundTag nbt = new CompoundTag();
+        nbt.putFloat("X", x);
+        nbt.putFloat("Y", y);
+        nbt.putFloat("Z", z);
+        nbt.putFloat("Yaw", yaw);
+        nbt.putFloat("Pitch", pitch);
+        return nbt;
+    }
+
+    public void loadFromNBT(CompoundTag tag) {
+        Game.ensureNBTValue(tag, "X");
+        Game.ensureNBTValue(tag, "Y");
+        Game.ensureNBTValue(tag, "Z");
+        Game.ensureNBTValue(tag, "Yaw");
+        Game.ensureNBTValue(tag, "Pitch");
+
+        setPos(tag.getFloat("X"), tag.getFloat("Y"), tag.getFloat("Z"));
+        yaw = tag.getFloat("Yaw");
+        pitch = tag.getFloat("Pitch");
     }
 }

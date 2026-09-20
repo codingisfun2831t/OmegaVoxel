@@ -198,9 +198,7 @@ public class Level {
         }
     }
 
-    public void saveTo(DataOutputStream out) throws IOException {
-        GZIPOutputStream gzip = new GZIPOutputStream(out);
-        gzip.write(blocks);
-        gzip.finish();
+    public byte[] getBlocks() {
+        return blocks;
     }
 }

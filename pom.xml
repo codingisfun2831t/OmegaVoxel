@@ -16,6 +16,13 @@
         <main.class>com.codingisfun2831t.omegavoxel.Game</main.class>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <!-- Core API jars (platform-independent) -->
         <dependency>
@@ -133,6 +140,12 @@
             <groupId>org.joml</groupId>
             <artifactId>joml</artifactId>
             <version>1.10.9</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.Querz</groupId>
+            <artifactId>NBT</artifactId>
+            <version>6.1</version>
         </dependency>
     </dependencies>
 

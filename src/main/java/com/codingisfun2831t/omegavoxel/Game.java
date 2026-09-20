@@ -12,6 +12,10 @@ import com.codingisfun2831t.omegavoxel.ui.UIRenderer;
 import com.codingisfun2831t.omegavoxel.ui.screens.HUD;
 import com.codingisfun2831t.omegavoxel.ui.screens.MainMenuScreen;
 import com.codingisfun2831t.omegavoxel.ui.screens.PauseMenu;
+import net.querz.nbt.io.NBTUtil;
+import net.querz.nbt.io.NamedTag;
+import net.querz.nbt.tag.CompoundTag;
+import net.querz.nbt.tag.Tag;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL;
@@ -131,18 +135,17 @@ public class Game {
     public void saveLevel() {
         if (level == null) return;
 
-        try (DataOutputStream out = new DataOutputStream(
-                new FileOutputStream(levelDat))) {
+        try {
+            CompoundTag save = new CompoundTag();
 
-            out.writeFloat(player.x);
-            out.writeFloat(player.y);
-            out.writeFloat(player.z);
+            save.put("Player", player.getNBT());
 
-            out.writeShort(level.getWidth());
-            out.writeShort(level.getHeight());
-            out.writeShort(level.getDepth());
+            save.putInt("Width", level.getWidth());
+            save.putInt("Height", level.getHeight());
+            save.putInt("Depth", level.getDepth());
 
-            level.saveTo(out);
+            save.putByteArray("Blocks", level.getBlocks());
+            NBTUtil.write(save, levelDat);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -154,24 +157,25 @@ public class Game {
 
     public void play() {
         if (levelDat.exists()) {
-            try (DataInputStream in = new DataInputStream(
-                    new FileInputStream(levelDat))) {
-
-                float x = in.readFloat();
-                float y = in.readFloat();
-                float z = in.readFloat();
-
-                short width = in.readShort();
-                short height = in.readShort();
-                short depth = in.readShort();
-
-                byte[] blocks;
-                try (GZIPInputStream gzip = new GZIPInputStream(in)) {
-                    blocks = gzip.readAllBytes();
+            try {
+                NamedTag named = NBTUtil.read(levelDat);
+                if (!(named.getTag() instanceof CompoundTag root)) {
+                    throw new RuntimeException("Root tag is not compound.");
                 }
 
-                this.level = new Level(width, height, depth, blocks);
-                this.player.setPos(x, y, z);
+                ensureNBTValue(root, "Player");
+                if (!(root.get("Player") instanceof CompoundTag playerTag)) {
+                    throw new RuntimeException("Player tag is not compound.");
+                }
+
+                ensureNBTValue(root, "Width");
+                ensureNBTValue(root, "Height");
+                ensureNBTValue(root, "Depth");
+                ensureNBTValue(root, "Blocks");
+
+                this.level = new Level(root.getInt("Width"),
+                        root.getInt("Height"), root.getInt("Depth"), root.getByteArray("Blocks"));
+                this.player.loadFromNBT(playerTag);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -379,5 +383,11 @@ public class Game {
 
     public static void main(String[] args) {
         new Game(800, 600).run();
+    }
+
+    public static void ensureNBTValue(CompoundTag tag, String key) {
+        if (!tag.containsKey(key)) {
+            throw new RuntimeException("Key \"" + key + "\" doesn't exist.");
+        }
     }
 }
