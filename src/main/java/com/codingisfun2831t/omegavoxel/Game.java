@@ -392,7 +392,7 @@ public class Game {
             long currentTime = System.currentTimeMillis();
             if (currentTime >= this._lastTime + 1000L) {
                 this._lastTime = currentTime;
-                hud.setDebug(String.format("%s %d fps, %d chunk updates", TITLE, frames, Chunk.totalUpdates));
+                hud.setDebug(String.format(Translations.get("debug.mainText"), TITLE, frames, Chunk.totalUpdates));
                 this.frames = 0;
                 Chunk.totalUpdates = 0;
             }

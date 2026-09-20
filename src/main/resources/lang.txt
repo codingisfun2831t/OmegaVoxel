@@ -1,0 +1,10 @@
+# Main menu
+menu.play = Play
+menu.quit = Quit Game
+
+# Pause menu
+menu.pause.backToGame = Back to Game
+menu.pause.quit = Save and Quit
+
+# Debug
+debug.mainText = %s %d fps, %d chunk updates
