@@ -1,6 +1,5 @@
 package com.codingisfun2831t.omegavoxel.ui;
 
-import com.codingisfun2831t.omegavoxel.ui.widgets.Background;
 import org.joml.Vector2i;
 
 import java.util.ArrayList;

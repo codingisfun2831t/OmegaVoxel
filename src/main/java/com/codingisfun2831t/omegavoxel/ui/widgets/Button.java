@@ -1,6 +1,9 @@
 package com.codingisfun2831t.omegavoxel.ui.widgets;
 
-import com.codingisfun2831t.omegavoxel.ui.*;
+import com.codingisfun2831t.omegavoxel.ui.Color;
+import com.codingisfun2831t.omegavoxel.ui.Rectangle;
+import com.codingisfun2831t.omegavoxel.ui.UIRenderer;
+import com.codingisfun2831t.omegavoxel.ui.Widget;
 import org.lwjgl.glfw.GLFW;
 
 public class Button extends Widget {

@@ -2,13 +2,8 @@ package com.codingisfun2831t.omegavoxel.level;
 
 import com.codingisfun2831t.omegavoxel.AABB;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 public class Level {
     private int width;

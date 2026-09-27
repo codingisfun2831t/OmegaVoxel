@@ -1,9 +1,9 @@
 package com.codingisfun2831t.omegavoxel.assets;
 
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
-import org.lwjgl.stb.STBImage;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;

@@ -1,13 +1,11 @@
 package com.codingisfun2831t.omegavoxel.ui.screens;
 
-import com.codingisfun2831t.omegavoxel.Game;
 import com.codingisfun2831t.omegavoxel.Translations;
 import com.codingisfun2831t.omegavoxel.ui.LayoutContext;
 import com.codingisfun2831t.omegavoxel.ui.Screen;
 import com.codingisfun2831t.omegavoxel.ui.widgets.Background;
 import com.codingisfun2831t.omegavoxel.ui.widgets.Button;
 import com.codingisfun2831t.omegavoxel.ui.widgets.Label;
-import com.codingisfun2831t.omegavoxel.ui.widgets.Slider;
 
 public class MainMenuScreen extends Screen {
     private Label pauseLabel;

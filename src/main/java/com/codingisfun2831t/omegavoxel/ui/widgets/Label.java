@@ -1,11 +1,8 @@
 package com.codingisfun2831t.omegavoxel.ui.widgets;
 
 import com.codingisfun2831t.omegavoxel.ui.LayoutContext;
-import com.codingisfun2831t.omegavoxel.ui.Rectangle;
 import com.codingisfun2831t.omegavoxel.ui.UIRenderer;
 import com.codingisfun2831t.omegavoxel.ui.Widget;
-
-import java.util.ArrayList;
 
 public class Label extends Widget {
     public String text;

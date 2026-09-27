@@ -6,7 +6,6 @@ import com.codingisfun2831t.omegavoxel.rendering.FontRenderer;
 import com.codingisfun2831t.omegavoxel.rendering.Renderer;
 import com.codingisfun2831t.omegavoxel.rendering.ScaledResolution;
 import org.joml.Vector2i;
-import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Stack;
