@@ -3,8 +3,8 @@ package com.codingisfun2831t.omegavoxel;
 import com.codingisfun2831t.omegavoxel.assets.Assets;
 import com.codingisfun2831t.omegavoxel.assets.Setup;
 import com.codingisfun2831t.omegavoxel.assets.Textures;
-import com.codingisfun2831t.omegavoxel.level.Block;
 import com.codingisfun2831t.omegavoxel.level.Level;
+import com.codingisfun2831t.omegavoxel.options.Options;
 import com.codingisfun2831t.omegavoxel.rendering.*;
 import com.codingisfun2831t.omegavoxel.ui.LayoutContext;
 import com.codingisfun2831t.omegavoxel.ui.Screen;
@@ -15,7 +15,6 @@ import com.codingisfun2831t.omegavoxel.ui.screens.PauseMenu;
 import net.querz.nbt.io.NBTUtil;
 import net.querz.nbt.io.NamedTag;
 import net.querz.nbt.tag.CompoundTag;
-import net.querz.nbt.tag.Tag;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL;
@@ -23,7 +22,6 @@ import org.lwjgl.opengl.GL11;
 
 import java.io.*;
 import java.util.Properties;
-import java.util.zip.GZIPInputStream;
 
 public class Game {
     public static String VERSION;
@@ -78,6 +76,7 @@ public class Game {
     private Screen currentScreen = null;
     private UIRenderer uiRenderer;
     private Player player;
+    public Options options;
 
     public Game(int width, int height) {
         this.width = width;
@@ -208,8 +207,15 @@ public class Game {
         GLFW.glfwMakeContextCurrent(window);
         GL.createCapabilities();
 
+        this.options = new Options();
+        try {
+            this.options.load();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         this.r = Renderer.getInstance();
-        this.cam = new Camera();
+        this.cam = new Camera(options);
         this.moveTimer = new Timer(60);
         this.assets = new Assets();
         this.textures = new Textures(assets);
@@ -299,7 +305,12 @@ public class Game {
 
         GLFW.glfwSetMouseButtonCallback(window, (windowHandle, button, action, mods) -> {
             if (currentScreen != null) {
-                currentScreen.mouseClick((int) mouseX, (int) mouseY, button);
+                if (action == GLFW.GLFW_PRESS) {
+                    currentScreen.mouseDown((int) mouseX, (int) mouseY, button);
+                } else if (action == GLFW.GLFW_RELEASE) {
+                    currentScreen.mouseUp((int) mouseX, (int) mouseY, button);
+                }
+
                 return;
             }
 
@@ -403,6 +414,11 @@ public class Game {
         r.destroy();
         GLFW.glfwDestroyWindow(window);
         GLFW.glfwTerminate();
+        try {
+            this.options.save();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void main(String[] args) {

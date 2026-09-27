@@ -11,6 +11,7 @@ public class PauseMenu extends Screen {
     private Label pauseLabel;
     private Background bg;
     private Button backToGame;
+    private Button options;
     private Button quit;
 
     @Override
@@ -25,6 +26,11 @@ public class PauseMenu extends Screen {
             game.navigateTo(null);
         });
         root.addChild(backToGame);
+
+        options = new Button(Translations.get("options.title"), 200, () -> {
+            game.navigateTo(new MainOptionsScreen(game.options).withParent(this));
+        });
+        root.addChild(options);
 
         quit = new Button(Translations.get("menu.pause.quit"), 200, () -> {
             game.saveLevel();
@@ -45,6 +51,10 @@ public class PauseMenu extends Screen {
         backToGame.setCenterX(root.getCenterX());
         backToGame.setTop(buttonY);
         buttonY = backToGame.getBottom() + 4;
+
+        options.setCenterX(root.getCenterX());
+        options.setTop(buttonY);
+        buttonY = options.getBottom() + 4;
 
         quit.setCenterX(root.getCenterX());
         quit.setTop(buttonY);

@@ -1,5 +1,6 @@
 package com.codingisfun2831t.omegavoxel.ui;
 
+import com.codingisfun2831t.omegavoxel.ui.widgets.Background;
 import org.joml.Vector2i;
 
 import java.util.ArrayList;
@@ -142,8 +143,10 @@ public class Widget {
 
     public void fixLayout(LayoutContext context) {}
 
-    public void mouseClick(int x, int y, int button) {
-    }
+    public void mouseDown(int x, int y, int button) {}
+    public void mouseUp(int x, int y, int button) {}
+    public void mouseMove(int x, int y) {}
+    public void mouseClick(int x, int y, int button) {}
 
     public Widget hitTest(int mouseX, int mouseY) {
         for (int i = children.size() - 1; i >= 0; i--) {
@@ -165,5 +168,29 @@ public class Widget {
         }
 
         return null;
+    }
+
+    public int absoluteX() {
+        int abs = getLeft();
+        Widget next = parent;
+
+        while (next != null) {
+            abs += next.getLeft();
+            next = next.parent;
+        }
+
+        return abs;
+    }
+
+    public int absoluteY() {
+        int abs = getTop();
+        Widget next = parent;
+
+        while (next != null) {
+            abs += next.getTop();
+            next = next.parent;
+        }
+
+        return abs;
     }
 }

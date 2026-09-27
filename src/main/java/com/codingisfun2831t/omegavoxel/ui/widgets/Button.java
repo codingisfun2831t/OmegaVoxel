@@ -1,9 +1,6 @@
 package com.codingisfun2831t.omegavoxel.ui.widgets;
 
-import com.codingisfun2831t.omegavoxel.ui.Color;
-import com.codingisfun2831t.omegavoxel.ui.LayoutContext;
-import com.codingisfun2831t.omegavoxel.ui.UIRenderer;
-import com.codingisfun2831t.omegavoxel.ui.Widget;
+import com.codingisfun2831t.omegavoxel.ui.*;
 import org.lwjgl.glfw.GLFW;
 
 public class Button extends Widget {
@@ -20,11 +17,18 @@ public class Button extends Widget {
 
     @Override
     public void renderContent(UIRenderer renderer) {
-        renderer.drawTexturedRect(renderer.loadTex("gui/gui.png"), getBounds(), 0, 66 + (this.hovered ? 20 : 0));
+        drawButtonSprite(renderer, this.hovered ? 1 : 0, getBounds());
         renderer.drawCenteredTextWithShadow(getCenterX(), getTop() + 6, text, hovered ? Color.BUTTON_TEXT_HOVER : Color.WHITE);
     }
 
     public void mouseClick(int x, int y, int button) {
         if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT && action != null) action.run();
+    }
+
+    public static void drawButtonSprite(UIRenderer renderer, int index, Rectangle rect) {
+        renderer.drawTexturedRect(renderer.loadTex("gui/gui.png"), rect, 0, 66 + (index * 20), rect.getWidth() - 2, 20);
+        renderer.drawTexturedRect(renderer.loadTex("gui/gui.png"), rect.getRight() - 2,
+                rect.getTop(), rect.getRight(), rect.getBottom(), 198,
+                66 + (index * 20), 2, 20);
     }
 }

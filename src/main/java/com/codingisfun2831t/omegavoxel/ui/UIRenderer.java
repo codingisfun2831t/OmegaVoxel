@@ -102,12 +102,7 @@ public class UIRenderer {
         r.v2d(left, bottom);
     }
 
-    public void drawTexturedRect(Texture tex, Rectangle rect, int u, int v, int uvWidth, int uvHeight) {
-        int left = rect.getLeft();
-        int right = rect.getRight();
-        int top = rect.getTop();
-        int bottom = rect.getBottom();
-
+    public void drawTexturedRect(Texture tex, int left, int top, int right, int bottom, int u, int v, int uvWidth, int uvHeight) {
         left += translation.x;
         top += translation.y;
         right += translation.x;
@@ -121,6 +116,10 @@ public class UIRenderer {
         r.v2duv(right, top, u + uvWidth, v);
         r.v2duv(right, bottom, u + uvWidth, v + uvHeight);
         r.v2duv(left, bottom, u, v + uvHeight);
+    }
+
+    public void drawTexturedRect(Texture tex, Rectangle rect, int u, int v, int uvWidth, int uvHeight) {
+        drawTexturedRect(tex, rect.getLeft(), rect.getTop(), rect.getRight(), rect.getBottom(), u, v, uvWidth, uvHeight);
     }
 
     public void drawTexturedRect(Texture tex, Rectangle rect, int u, int v) {

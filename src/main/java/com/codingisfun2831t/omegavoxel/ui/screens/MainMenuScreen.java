@@ -7,11 +7,13 @@ import com.codingisfun2831t.omegavoxel.ui.Screen;
 import com.codingisfun2831t.omegavoxel.ui.widgets.Background;
 import com.codingisfun2831t.omegavoxel.ui.widgets.Button;
 import com.codingisfun2831t.omegavoxel.ui.widgets.Label;
+import com.codingisfun2831t.omegavoxel.ui.widgets.Slider;
 
 public class MainMenuScreen extends Screen {
     private Label pauseLabel;
     private Background bg;
     private Button play;
+    private Button settings;
     private Button quit;
 
     @Override
@@ -26,6 +28,11 @@ public class MainMenuScreen extends Screen {
             game.play();
         });
         root.addChild(play);
+
+        settings = new Button(Translations.get("options.title"), 200, () -> {
+            game.navigateTo(new MainOptionsScreen(game.options).withParent(this));
+        });
+        root.addChild(settings);
 
         quit = new Button(Translations.get("menu.quit"), 200, () -> {
             game.close();
@@ -45,6 +52,10 @@ public class MainMenuScreen extends Screen {
         play.setCenterX(root.getCenterX());
         play.setTop(buttonY);
         buttonY = play.getBottom() + 4;
+
+        settings.setCenterX(root.getCenterX());
+        settings.setTop(buttonY);
+        buttonY = settings.getBottom() + 4;
 
         quit.setCenterX(root.getCenterX());
         quit.setTop(buttonY);

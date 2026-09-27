@@ -1,3 +1,6 @@
+# GUI
+gui.done = Done
+
 # Main menu
 menu.play = Play
 menu.quit = Quit Game
@@ -8,3 +11,7 @@ menu.pause.quit = Save and Quit
 
 # Debug
 debug.mainText = %s %d fps, %d chunk updates
+
+# Options
+options.title = Options
+options.fov = FOV

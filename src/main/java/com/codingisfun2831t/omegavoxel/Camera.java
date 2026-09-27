@@ -1,5 +1,6 @@
 package com.codingisfun2831t.omegavoxel;
 
+import com.codingisfun2831t.omegavoxel.options.Options;
 import org.joml.FrustumIntersection;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -19,13 +20,16 @@ public class Camera {
     private Matrix4f projViewMatrix = new Matrix4f();
     private FrustumIntersection frustum = new FrustumIntersection();
 
-    public Camera() {
+    private Options options;
+
+    public Camera(Options options) {
         this.position = new Vector3f(0, 0, 0);
         this.yaw = 0;
         this.pitch = 0;
         this.projection = new Matrix4f();
         this.view = new Matrix4f();
         this.matrixBuf = new float[16];
+        this.options = options;
     }
 
     public void applyProjection(int width, int height) {
@@ -33,9 +37,8 @@ public class Camera {
 
         float aspect = (float) width / (float) height;
 
-        projection.identity()
-                .perspective(
-                        (float) Math.toRadians(70.0f),
+        projection.setPerspective(
+                        (float) Math.toRadians(options.getFOV()),
                         aspect,
                         0.05f,
                         1000.0f
