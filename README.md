@@ -28,6 +28,12 @@ java -jar OmegaVoxel-linux-[version].jar
 java -XstartOnFirstThread -jar OmegaVoxel-mac-[version].jar
 ```
 
+Of course, you can also put arguments after the java command:
+
+ * `-d` or `--dataDir` - Directory to put data. If not provided defaults to
+   `AppData/Roaming/OmegaVoxel` on Windows, `Library/Application Support/OmegaVoxel` on MacOS,
+   and `XDG_DATA_HOME/OmegaVoxel`/`~/.local/share/OmegaVoxel` on Linux.
+
 ## Screenshot
 This is what it actually looks like!
 ![Screenshot looking at a face](doc/screenshot.png)

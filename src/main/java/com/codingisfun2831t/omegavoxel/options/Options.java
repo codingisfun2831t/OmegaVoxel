@@ -10,10 +10,11 @@ import java.util.Properties;
 public class Options {
     public IntOption fovOption;
     public IntOption renderDistOption;
-    private static final Path optionsFile = Path.of("options.txt");
+    private Path optionsFile;
     private List<Option<?>> options;
 
-    public Options() {
+    public Options(Path dataDir) {
+        optionsFile = dataDir.resolve("options.txt");
         options = new ArrayList<>();
         fovOption = new IntOption(70, "fov").range(30, 120);
         options.add(fovOption);
@@ -23,6 +24,7 @@ public class Options {
 
     public void load() throws IOException {
         if (!Files.exists(optionsFile)) {
+            save();
             return;
         }
 

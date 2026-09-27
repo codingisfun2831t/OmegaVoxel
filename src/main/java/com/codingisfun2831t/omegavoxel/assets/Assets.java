@@ -14,9 +14,10 @@ public class Assets {
     private final HashMap<String, String> textAssets;
     private final HashMap<String, byte[]> byteAssets;
 
-    private static final Path ASSETS = Path.of("assets");
+    private Path assets;
 
-    public Assets() {
+    public Assets(Path dataDir) {
+        assets = dataDir.resolve("assets");
         textAssets = new HashMap<>();
         byteAssets = new HashMap<>();
     }
@@ -47,7 +48,7 @@ public class Assets {
     }
 
     private byte[] loadAsset(String resourcePath) {
-        Path file = ASSETS.resolve(resourcePath);
+        Path file = assets.resolve(resourcePath);
 
         try {
             if (Files.isRegularFile(file)) {

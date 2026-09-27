@@ -1,13 +1,5 @@
 target/
 
-# from app
-assets/
-
-# Needed because gitignore is nosey.
-!src/main/java/com/codingisfun2831t/omegavoxel/assets
-
-level.dat
-
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/

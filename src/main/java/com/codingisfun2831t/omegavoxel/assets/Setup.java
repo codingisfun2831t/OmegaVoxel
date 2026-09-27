@@ -24,8 +24,8 @@ import java.util.zip.ZipFile;
 public class Setup {
     private record Progress(int progress, String status) {}
 
-    private static final Path assets = Path.of("assets");
-    private static final Path jar = assets.resolve("b1.7.3.jar");
+    private Path assets;
+    private Path jar;
     private static final String JAR_LOCATION = "https://launcher.mojang.com/v1/objects/43db9b498cb67058d2e12d394e6507722e71bb45/client.jar";
     private static final byte[] JAR_MD5HASH = {
             (byte)175, (byte)31, (byte)160, (byte)75,
@@ -55,7 +55,9 @@ public class Setup {
     private JPanel extractPage;
     private CardLayout layout;
 
-    public Setup() {
+    public Setup(Path dataDir) {
+        assets = dataDir.resolve(Path.of("assets"));
+        jar = assets.resolve("b1.7.3.jar");
         dialog = new JDialog();
         dialog.setTitle("Minecraft Clone Setup");
         dialog.setSize(500, 200);

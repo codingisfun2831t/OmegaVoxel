@@ -23,9 +23,15 @@ import org.lwjgl.opengl.GL11;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
-public class Game {
+import picocli.CommandLine;
+import picocli.CommandLine.Option;
+
+public class Game implements Runnable {
     public static String VERSION;
     public static final String TITLE;
 
@@ -79,6 +85,14 @@ public class Game {
     private UIRenderer uiRenderer;
     private Player player;
     public Options options;
+    private Path dataDir;
+
+    public Path getDataDir() {
+        return dataDir;
+    }
+
+    @Option(names = {"-d", "--dataDir"})
+    String dataDirOption = "";
 
     public Game(int width, int height) {
         this.width = width;
@@ -90,8 +104,53 @@ public class Game {
         resizeScreen(hud);
     }
 
+    public static Path getDataDirectory(String appName) {
+        String os = System.getProperty("os.name").toLowerCase();
+
+        if (os.contains("win")) {
+            return Paths.get(System.getenv("APPDATA"), appName);
+        }
+
+        if (os.contains("mac")) {
+            return Paths.get(
+                    System.getProperty("user.home"),
+                    "Library",
+                    "Application Support",
+                    appName
+            );
+        }
+
+        String xdg = System.getenv("XDG_DATA_HOME");
+
+        if (xdg != null && !xdg.isEmpty())
+            return Paths.get(xdg, appName);
+
+        return Paths.get(
+                System.getProperty("user.home"),
+                ".local",
+                "share",
+                appName
+        );
+    }
+
     public void run() {
-        if (!(new Setup().run())) {
+        if (dataDirOption.isEmpty()) {
+            dataDir = getDataDirectory("OmegaVoxel");
+        } else {
+            dataDir = Path.of(dataDirOption).normalize();
+        }
+
+        if (!Files.exists(dataDir)) {
+            try {
+                Files.createDirectories(dataDir);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        levelDat = dataDir.resolve("level.dat").toFile();
+
+        if (!(new Setup(dataDir).run())) {
             return;
         }
 
@@ -131,7 +190,7 @@ public class Game {
         return currentScreen == null || !currentScreen.pausesGame();
     }
 
-    private static final File levelDat = new File("level.dat");
+    private File levelDat;
 
     public void saveLevel() {
         if (level == null) return;
@@ -209,7 +268,7 @@ public class Game {
         GLFW.glfwMakeContextCurrent(window);
         GL.createCapabilities();
 
-        this.options = new Options();
+        this.options = new Options(dataDir);
         try {
             this.options.load();
         } catch (IOException e) {
@@ -219,7 +278,7 @@ public class Game {
         this.r = Renderer.getInstance();
         this.cam = new Camera(options);
         this.moveTimer = new Timer(60);
-        this.assets = new Assets();
+        this.assets = new Assets(dataDir);
         this.textures = new Textures(assets);
         this.r.useTextures(textures);
         this.text = new FontRenderer(r, textures);
@@ -423,9 +482,12 @@ public class Game {
         }
     }
 
+
     public static void main(String[] args) {
-        new Game(800, 600).run();
+        int exitCode = new CommandLine(new Game(800, 600)).execute(args);
+        System.exit(exitCode);
     }
+
 
     public static void ensureNBTValue(CompoundTag tag, String key) {
         if (!tag.containsKey(key)) {
