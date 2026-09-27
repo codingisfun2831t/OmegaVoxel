@@ -5,23 +5,34 @@ import com.codingisfun2831t.omegavoxel.HitResult;
 import com.codingisfun2831t.omegavoxel.assets.Texture;
 import com.codingisfun2831t.omegavoxel.level.Level;
 import com.codingisfun2831t.omegavoxel.level.LevelListener;
+import com.codingisfun2831t.omegavoxel.options.Options;
+import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class LevelRenderer implements LevelListener {
     private Level lvl;
     private Renderer r;
+    private Options opts;
 
     private int xChunks;
     private int yChunks;
     private int zChunks;
     private Chunk[] chunks;
 
+    private final List<Chunk> renderChunks = new ArrayList<>();
+
     private int getChunkIndex(int x, int y, int z) {
         return (y * zChunks + z) * xChunks + x;
     }
 
-    public LevelRenderer(Renderer r) {
+    public LevelRenderer(Renderer r, Options opts) {
         this.r = r;
+        this.opts = opts;
     }
 
     public void setLevel(Level lvl) {
@@ -62,10 +73,34 @@ public class LevelRenderer implements LevelListener {
 
     public void render(Camera c) {
         if (lvl == null) return;
+
+        renderChunks.clear();
+
+        int render = opts.getRenderDist() * Chunk.CHUNK_SIZE;
+        int renderSq = render * render;
+
         for (Chunk chunk : chunks) {
-            if (chunk.isVisible(c))
-                chunk.render();
+            int dx = chunk.chunkX() - (int)(c.position.x);
+            int dz = chunk.chunkZ() - (int)(c.position.z);
+
+            if (dx * dx + dz * dz <= renderSq && chunk.isVisible(c))
+                renderChunks.add(chunk);
         }
+
+        renderChunks.sort(Comparator.comparingDouble(chunk -> {
+            float x = chunk.chunkX() * Chunk.CHUNK_SIZE + Chunk.CHUNK_SIZE / 2.0f;
+            float y = chunk.chunkY() * Chunk.CHUNK_SIZE + Chunk.CHUNK_SIZE / 2.0f;
+            float z = chunk.chunkZ() * Chunk.CHUNK_SIZE + Chunk.CHUNK_SIZE / 2.0f;
+
+            Vector3f direction = c.getDirection();
+
+            return (x - c.position.x) * direction.x
+                    + (y - c.position.y) * direction.y
+                    + (z - c.position.z) * direction.z;
+        }));
+
+        for (Chunk chunk : renderChunks)
+            chunk.render();
     }
 
     public void drawSelectionBox(HitResult h) {

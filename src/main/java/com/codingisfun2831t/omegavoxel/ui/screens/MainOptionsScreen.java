@@ -12,7 +12,8 @@ public class MainOptionsScreen extends BaseOptionsScreen {
     @Override
     public Option<?>[] getOptions() {
         return new Option[] {
-                opts.fovOption
+                opts.fovOption,
+                opts.renderDistOption
         };
     }
 

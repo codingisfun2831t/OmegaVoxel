@@ -9,14 +9,16 @@ import java.util.Properties;
 
 public class Options {
     public IntOption fovOption;
+    public IntOption renderDistOption;
     private static final Path optionsFile = Path.of("options.txt");
     private List<Option<?>> options;
 
     public Options() {
         options = new ArrayList<>();
-
         fovOption = new IntOption(70, "fov").range(30, 120);
         options.add(fovOption);
+        renderDistOption = new IntOption(4, "renderDist").range(2, 16);
+        options.add(renderDistOption);
     }
 
     public void load() throws IOException {
@@ -46,4 +48,5 @@ public class Options {
     public int getFOV() {
         return fovOption.value;
     }
+    public int getRenderDist() { return renderDistOption.value; }
 }

@@ -80,6 +80,18 @@ public class Chunk {
         GL11.glCallList(this.list);
     }
 
+    public int chunkX() {
+        return x0;
+    }
+
+    public int chunkY() {
+        return y0;
+    }
+
+    public int chunkZ() {
+        return z0;
+    }
+
     public boolean isVisible(Camera c) {
         return c.boxInFrustum(x0, y0, z0, x1, y1, z1);
     }

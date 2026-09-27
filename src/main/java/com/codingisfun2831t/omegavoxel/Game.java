@@ -224,7 +224,7 @@ public class Game {
         this.r.useTextures(textures);
         this.text = new FontRenderer(r, textures);
         this.uiRenderer = new UIRenderer(r, text);
-        this.levelRenderer = new LevelRenderer(r);
+        this.levelRenderer = new LevelRenderer(r, options);
         this.player = new Player();
 
         this.hud.game = this;

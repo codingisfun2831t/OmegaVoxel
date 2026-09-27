@@ -117,7 +117,7 @@ public class Slider extends Widget {
         drawButtonSprite(renderer, -1, getBounds());
 
         knob.set(
-                (int) (getSliderPosition() * (getWidth() - KNOB_SIZE)),
+                getLeft() + (int) (getSliderPosition() * (getWidth() - KNOB_SIZE)),
                 0,
                 KNOB_SIZE,
                 20
