@@ -408,6 +408,10 @@ public class Game implements Runnable {
         GL11.glFrontFace(GL11.GL_CCW);
         GL11.glAlphaFunc(GL11.GL_GREATER, 0.5f);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glFogi(GL11.GL_FOG_MODE, GL11.GL_LINEAR);
+        GL11.glFogfv(GL11.GL_FOG_COLOR, new float[] {
+                0.47f, 0.63f, 0.80f, 1.0f
+        });
         while (!GLFW.glfwWindowShouldClose(window)) {
             Chunk.updatesThisFrame = 0;
 

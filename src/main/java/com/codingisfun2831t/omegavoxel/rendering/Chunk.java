@@ -81,15 +81,15 @@ public class Chunk {
     }
 
     public int chunkX() {
-        return x0;
+        return x0 + ((x1 - x0) / 2);
     }
 
     public int chunkY() {
-        return y0;
+        return y0 + ((y1 - y0) / 2);
     }
 
     public int chunkZ() {
-        return z0;
+        return z0 + ((z1 - z0) / 2);
     }
 
     public boolean isVisible(Camera c) {

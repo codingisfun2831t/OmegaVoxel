@@ -76,21 +76,22 @@ public class LevelRenderer implements LevelListener {
 
         renderChunks.clear();
 
-        int render = opts.getRenderDist() * Chunk.CHUNK_SIZE;
-        int renderSq = render * render;
+        int render = (opts.getRenderDist()) * Chunk.CHUNK_SIZE;
 
         for (Chunk chunk : chunks) {
-            int dx = chunk.chunkX() - (int)(c.position.x);
-            int dz = chunk.chunkZ() - (int)(c.position.z);
+            float dx = Math.abs(chunk.chunkX() + Chunk.CHUNK_SIZE * 0.5f - c.position.x);
+            float dz = Math.abs(chunk.chunkZ() + Chunk.CHUNK_SIZE * 0.5f - c.position.z);
 
-            if (dx * dx + dz * dz <= renderSq && chunk.isVisible(c))
+            if (dx <= render && dz <= render && chunk.isVisible(c))
                 renderChunks.add(chunk);
         }
 
+
+
         renderChunks.sort(Comparator.comparingDouble(chunk -> {
-            float x = chunk.chunkX() * Chunk.CHUNK_SIZE + Chunk.CHUNK_SIZE / 2.0f;
-            float y = chunk.chunkY() * Chunk.CHUNK_SIZE + Chunk.CHUNK_SIZE / 2.0f;
-            float z = chunk.chunkZ() * Chunk.CHUNK_SIZE + Chunk.CHUNK_SIZE / 2.0f;
+            float x = chunk.chunkX();
+            float y = chunk.chunkY();
+            float z = chunk.chunkZ();
 
             Vector3f direction = c.getDirection();
 
@@ -99,8 +100,14 @@ public class LevelRenderer implements LevelListener {
                     + (z - c.position.z) * direction.z;
         }));
 
+        GL11.glEnable(GL11.GL_FOG);
+        GL11.glFogf(GL11.GL_FOG_START, render - 32);
+        GL11.glFogf(GL11.GL_FOG_END, render - 16);
+
         for (Chunk chunk : renderChunks)
             chunk.render();
+
+        GL11.glDisable(GL11.GL_FOG);
     }
 
     public void drawSelectionBox(HitResult h) {
