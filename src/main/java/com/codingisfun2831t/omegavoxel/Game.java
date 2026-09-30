@@ -31,7 +31,14 @@ import java.util.Properties;
 import picocli.CommandLine;
 import picocli.CommandLine.Option;
 
+
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 public class Game implements Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(Game.class);
     public static String VERSION;
     public static final String TITLE;
 
@@ -87,12 +94,30 @@ public class Game implements Runnable {
     public Options options;
     private Path dataDir;
 
+    private long startStartupTime = 0;
+
     public Path getDataDir() {
         return dataDir;
     }
 
     @Option(names = {"-d", "--dataDir"})
     String dataDirOption = "";
+
+    public Level getLevel() {
+        return level;
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    public HUD getHud() {
+        return hud;
+    }
+
+    public Screen getCurrentScreen() {
+        return currentScreen;
+    }
 
     public Game(int width, int height) {
         this.width = width;
@@ -134,27 +159,40 @@ public class Game implements Runnable {
     }
 
     public void run() {
+        startStartupTime = System.nanoTime();
+        logger.info("{} starting up... ", TITLE);
+
         if (dataDirOption.isEmpty()) {
             dataDir = getDataDirectory("OmegaVoxel");
         } else {
             dataDir = Path.of(dataDirOption).normalize();
         }
+        logger.info("Using data directory {}", dataDir.toString());
 
-        if (!Files.exists(dataDir)) {
-            try {
-                Files.createDirectories(dataDir);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+        try {
+            if (!Files.exists(dataDir)) {
+                try {
+                    Files.createDirectories(dataDir);
+                } catch (IOException e) {
+                    throw new RuntimeException(
+                            "Failed to create data directory! Does it have the right permissions?", e);
+                }
             }
+
+            levelDat = dataDir.resolve("level.dat").toFile();
+
+            if (!(new Setup(dataDir).run())) {
+                return;
+            }
+
+            mainLoop();
+        } catch (Throwable e) {
+            logger.error("{} has crashed!", TITLE, e);
+
+            String report = CrashReport.generateCrashReport(this, e);
+            System.out.println(report);
         }
 
-        levelDat = dataDir.resolve("level.dat").toFile();
-
-        if (!(new Setup(dataDir).run())) {
-            return;
-        }
-
-        mainLoop();
     }
 
     private void resizeScreen(Screen screen) {
@@ -195,6 +233,8 @@ public class Game implements Runnable {
     public void saveLevel() {
         if (level == null) return;
 
+        logger.info("Saving level...");
+
         try {
             CompoundTag save = new CompoundTag();
 
@@ -209,6 +249,8 @@ public class Game implements Runnable {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        logger.info("Level saved successfully");
     }
 
     public void close() {
@@ -216,6 +258,7 @@ public class Game implements Runnable {
     }
 
     public void play() {
+        logger.info("Loading world");
         if (levelDat.exists()) {
             try {
                 NamedTag named = NBTUtil.read(levelDat);
@@ -236,10 +279,12 @@ public class Game implements Runnable {
                 this.level = new Level(root.getInt("Width"),
                         root.getInt("Height"), root.getInt("Depth"), root.getByteArray("Blocks"));
                 this.player.loadFromNBT(playerTag);
+                logger.info("Level loaded!");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         } else {
+            logger.info("level.dat is non-existant, creating new level");
             this.level = new Level(128, 128, 128);
             this.player.resetPos(level);
 
@@ -260,6 +305,8 @@ public class Game implements Runnable {
     }
 
     private void mainLoop() {
+        logger.info("Setting up core systems...");
+
         GLFW.glfwInit();
 
         GLFW.glfwWindowHint(GLFW.GLFW_DEPTH_BITS, 24);
@@ -286,11 +333,14 @@ public class Game implements Runnable {
         this.levelRenderer = new LevelRenderer(r, options);
         this.player = new Player();
 
+        logger.info("Setting up UI...");
         this.hud.game = this;
         this.hud.init();
 
         updateUiRes();
         this.navigateTo(new MainMenuScreen());
+
+        logger.info("Setting up display...");
 
         GLFW.glfwSetFramebufferSizeCallback(window, (window, width, height) -> {
             this.width = width;
@@ -344,6 +394,7 @@ public class Game implements Runnable {
                         }
 
                         break;
+                    case GLFW.GLFW_KEY_R: player.resetPos(level);  break;
                     case GLFW.GLFW_KEY_1: player.selectedSlot = 0; break;
                     case GLFW.GLFW_KEY_2: player.selectedSlot = 1; break;
                     case GLFW.GLFW_KEY_3: player.selectedSlot = 2; break;
@@ -384,6 +435,7 @@ public class Game implements Runnable {
                                 hitResult.blockPos.z,
                                 (byte) 0
                         );
+
                         break;
 
                     case GLFW.GLFW_MOUSE_BUTTON_RIGHT:
@@ -412,6 +464,8 @@ public class Game implements Runnable {
         GL11.glFogfv(GL11.GL_FOG_COLOR, new float[] {
                 0.47f, 0.63f, 0.80f, 1.0f
         });
+
+        logger.info("We're ready! Started in {} milliseconds",  (System.nanoTime() - startStartupTime) / 1e6);
         while (!GLFW.glfwWindowShouldClose(window)) {
             Chunk.updatesThisFrame = 0;
 

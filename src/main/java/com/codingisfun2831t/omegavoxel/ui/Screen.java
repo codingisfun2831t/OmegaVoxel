@@ -86,4 +86,8 @@ public abstract class Screen {
     public void goBack() {
         if (parent != null) game.navigateTo(parent);
     }
+
+    public int getDescendantCount() {
+        return root.getDescendantCount();
+    }
 }

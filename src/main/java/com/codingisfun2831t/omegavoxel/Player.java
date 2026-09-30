@@ -4,10 +4,13 @@ import com.codingisfun2831t.omegavoxel.level.Block;
 import com.codingisfun2831t.omegavoxel.level.Level;
 import net.querz.nbt.tag.CompoundTag;
 import org.lwjgl.glfw.GLFW;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 
 public class Player {
+    private static final Logger logger = LoggerFactory.getLogger(Player.class);
     public float xo;
     public float yo;
     public float zo;
@@ -29,9 +32,11 @@ public class Player {
 
     public void resetPos(Level level) {
         float x = (float)Math.random() * (float) level.getWidth();
-        float y = (float)(level.getDepth() + 10);
+        float y = (float)(level.getDepth());
         float z = (float)Math.random() * (float) level.getHeight();
         this.setPos(x, y, z);
+
+        logger.info("Position reset to: XYZ {} / {} / {}", x, y, z);
     }
 
     public void setPos(float x, float y, float z) {
@@ -66,9 +71,7 @@ public class Player {
         this.zo = this.z;
         float xa = 0.0F;
         float ya = 0.0F;
-        if(isKeyDown(window, GLFW.GLFW_KEY_R)) {
-            this.resetPos(level);
-        }
+
         if(isKeyDown(window, GLFW.GLFW_KEY_UP) || isKeyDown(window, GLFW.GLFW_KEY_W)) {
             --ya;
         }

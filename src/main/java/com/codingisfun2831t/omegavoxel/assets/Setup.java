@@ -1,5 +1,8 @@
 package com.codingisfun2831t.omegavoxel.assets;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
@@ -22,6 +25,7 @@ import java.util.zip.ZipFile;
  * Dialog to extract assets from the Beta JAR.
  */
 public class Setup {
+    private static final Logger logger = LoggerFactory.getLogger(Setup.class);
     private record Progress(int progress, String status) {}
 
     private Path assets;
@@ -281,7 +285,7 @@ public class Setup {
                                         (float)total / 1_000_000f, percentDone)));
                             }
                         }
-                        System.out.println("Extracted: " + relativePath);
+                        logger.info("Extracted asset: {}", relativePath);
                     }
                 }
 
@@ -337,6 +341,8 @@ public class Setup {
      * Start the dialog.
      */
     public boolean run() {
+        logger.info("Extracting all assets...");
+
         try {
             if (!Files.isDirectory(assets)) {
                 Files.createDirectory(assets);
@@ -356,6 +362,7 @@ public class Setup {
 
         dialog.setVisible(true);
 
+        logger.info("All assets extracted properly!");
         return true;
     }
 }

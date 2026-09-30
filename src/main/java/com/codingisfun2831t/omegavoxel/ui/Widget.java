@@ -192,4 +192,14 @@ public class Widget {
 
         return abs;
     }
+
+    public int getDescendantCount() {
+        int val = 0;
+        for (Widget widget : children) {
+            val += 1;
+            val += widget.getDescendantCount();
+        }
+
+        return val;
+    }
 }
