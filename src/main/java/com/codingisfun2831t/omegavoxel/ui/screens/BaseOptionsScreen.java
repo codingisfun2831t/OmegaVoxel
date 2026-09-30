@@ -7,6 +7,7 @@ import com.codingisfun2831t.omegavoxel.options.Options;
 import com.codingisfun2831t.omegavoxel.ui.LayoutContext;
 import com.codingisfun2831t.omegavoxel.ui.Screen;
 import com.codingisfun2831t.omegavoxel.ui.Widget;
+import com.codingisfun2831t.omegavoxel.ui.widgets.Background;
 import com.codingisfun2831t.omegavoxel.ui.widgets.Button;
 import com.codingisfun2831t.omegavoxel.ui.widgets.Label;
 import com.codingisfun2831t.omegavoxel.ui.widgets.Slider;
@@ -15,6 +16,7 @@ public abstract class BaseOptionsScreen extends Screen {
     private Widget[] optionButtons;
     private Label title;
     private Button done;
+    private Background bg;
 
     protected Options opts;
 
@@ -30,6 +32,9 @@ public abstract class BaseOptionsScreen extends Screen {
     public void init() {
         Option<?>[] options = getOptions();
         optionButtons = new Widget[options.length];
+
+        bg = new Background();
+        root.addChild(bg);
 
         title = new Label(getTitle());
         root.addChild(title);
@@ -73,6 +78,8 @@ public abstract class BaseOptionsScreen extends Screen {
 
     @Override
     public void fixLayout(LayoutContext ctx) {
+        bg.setBounds(root.getBounds());
+
         title.autoSize(ctx);
         title.setCenterX(root.getCenterX());
         title.setTop(100);

@@ -207,7 +207,7 @@ public class Game implements Runnable {
         });
     }
 
-    public void navigateTo(Screen screen) {
+    public void navigateTo(Screen screen, boolean doInit) {
         currentScreen = screen;
         if (screen == null) {
             GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
@@ -218,8 +218,12 @@ public class Game implements Runnable {
         GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_NORMAL);
 
         currentScreen.game = this;
-        currentScreen.init();
+        if (doInit) currentScreen.init();
         resizeScreen(screen);
+    }
+
+    public void navigateTo(Screen screen) {
+        navigateTo(screen, true);
     }
 
     private boolean unpaused() {
