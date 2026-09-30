@@ -19,6 +19,6 @@ public class Label extends Widget {
     }
 
     public void autoSize(LayoutContext context) {
-        setSize(context.measureText(text), 10);
+        setSize(context.measureText(text), 8);
     }
 }
