@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 
 public class OmegaVoxel implements Runnable {
-    private static final Logger logger = LoggerFactory.getLogger(OmegaVoxel.class);
+    private static Logger logger;
     public static String VERSION;
     public static final String TITLE;
 
@@ -161,13 +161,17 @@ public class OmegaVoxel implements Runnable {
 
     public void run() {
         startStartupTime = System.nanoTime();
-        logger.info("{} starting up... ", TITLE);
 
         if (dataDirOption.isEmpty()) {
             dataDir = getDataDirectory("OmegaVoxel");
         } else {
             dataDir = Path.of(dataDirOption).normalize();
         }
+
+        System.setProperty("GameDataFolder", dataDir.toString());
+        logger = LoggerFactory.getLogger(OmegaVoxel.class);
+
+        logger.info("{} starting up... ", TITLE);
         logger.info("Using data directory {}", dataDir.toString());
 
         try {

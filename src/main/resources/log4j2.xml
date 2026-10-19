@@ -2,6 +2,7 @@
 <Configuration status="WARN">
     <Properties>
         <Property name="LogPattern">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t %-5level] %replace{%logger}{com\\.codingisfun2831t\\.omegavoxel\\.}{} - %msg%n</Property>
+        <Property name="GameDataFolder">${sys:GameDataFolder:-.}</Property>
     </Properties>
 
     <Appenders>
@@ -10,8 +11,8 @@
         </Console>
 
         <RollingFile name="FileAppender"
-                     fileName="logs/latest.log"
-                     filePattern="logs/archived/app-%d{yyyy-MM-dd}.log.gz">
+                     fileName="${GameDataFolder}/logs/latest.log"
+                     filePattern="${GameDataFolder}/logs/archived/app-%d{yyyy-MM-dd}.log.gz">
             <PatternLayout pattern="${LogPattern}"/>
             <Policies>
                 <OnStartupTriggeringPolicy />
