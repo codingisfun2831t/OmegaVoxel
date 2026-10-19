@@ -9,6 +9,7 @@ import com.codingisfun2831t.omegavoxel.rendering.*;
 import com.codingisfun2831t.omegavoxel.ui.LayoutContext;
 import com.codingisfun2831t.omegavoxel.ui.Screen;
 import com.codingisfun2831t.omegavoxel.ui.UIRenderer;
+import com.codingisfun2831t.omegavoxel.ui.screens.BlockSelectionScreen;
 import com.codingisfun2831t.omegavoxel.ui.screens.HUD;
 import com.codingisfun2831t.omegavoxel.ui.screens.MainMenuScreen;
 import com.codingisfun2831t.omegavoxel.ui.screens.PauseMenu;
@@ -408,7 +409,12 @@ public class Game implements Runnable {
                     case GLFW.GLFW_KEY_7: player.selectedSlot = 6; break;
                     case GLFW.GLFW_KEY_8: player.selectedSlot = 7; break;
                     case GLFW.GLFW_KEY_9: player.selectedSlot = 8; break;
-
+                    case GLFW.GLFW_KEY_B:
+                        if (currentScreen instanceof BlockSelectionScreen) {
+                            navigateTo(null);
+                        } else if (currentScreen == null) {
+                            navigateTo(new BlockSelectionScreen());
+                        }
                 }
             }
         });

@@ -48,6 +48,19 @@ public class Player {
         this.bb = new AABB(x - w, y - h, z - w, x + w, y + h, z + w);
     }
 
+    public void switchToBlock(Block b) {
+        for (int i = 0; i < hotbar.length; i++) {
+            if (hotbar[i] == b) {
+                hotbar[i] = hotbar[selectedSlot];
+                hotbar[selectedSlot] = b;
+
+                return;
+            }
+        }
+
+        hotbar[selectedSlot] = b;
+    }
+
     public void turn(float xo, float yo) {
         this.yaw = (float)((double)this.yaw - (double)xo * 0.15D);
         this.pitch = (float)((double)this.pitch + (double)yo * 0.15D);

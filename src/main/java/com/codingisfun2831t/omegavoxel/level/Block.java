@@ -4,7 +4,10 @@ import com.codingisfun2831t.omegavoxel.Face;
 import com.codingisfun2831t.omegavoxel.rendering.Renderer;
 import com.codingisfun2831t.omegavoxel.ui.Color;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Class for a single block type.
@@ -12,11 +15,14 @@ import java.util.Arrays;
 public class Block {
     private byte id;
     private byte[] tex;
+    private boolean hideInInventory = false;
 
     /**
      * List of all blocks.
      */
     public static final Block[] blocks = new Block[256];
+
+    private static final List<Block> blocksInInventory = new ArrayList<>();
 
     public static final Block STONE = new Block().texture(1).register(1);
     public static final Block GRASS = new BlockGrass().texture(0, 3, 2).register(2);
@@ -56,6 +62,14 @@ public class Block {
     public Block register(int id) {
         this.id = (byte)id;
         blocks[id] = this;
+
+        if (!hideInInventory) blocksInInventory.add(this);
+        
+        return this;
+    }
+
+    public Block hideInInventory() {
+        this.hideInInventory = true;
         return this;
     }
 
@@ -72,6 +86,10 @@ public class Block {
      */
     public byte[] getTex() {
         return tex;
+    }
+
+    public static List<Block> getBlocksInInventory() {
+        return Collections.unmodifiableList(blocksInInventory);
     }
 
     private static final float YBRIGHT = 1.0F;
