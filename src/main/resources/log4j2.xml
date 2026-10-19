@@ -1,16 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
+    <Properties>
+        <Property name="LogPattern">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t %-5level] %replace{%logger}{com\\.codingisfun2831t\\.omegavoxel\\.}{} - %msg%n</Property>
+    </Properties>
+
     <Appenders>
-        <!-- Define a Console Output Appender -->
         <Console name="ConsoleAppender" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+            <PatternLayout pattern="${LogPattern}"/>
         </Console>
+
+        <RollingFile name="FileAppender"
+                     fileName="logs/latest.log"
+                     filePattern="logs/archived/app-%d{yyyy-MM-dd}.log.gz">
+            <PatternLayout pattern="${LogPattern}"/>
+            <Policies>
+                <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+        </RollingFile>
     </Appenders>
 
     <Loggers>
-        <!-- Set root logging level to INFO and attach the console appender -->
         <Root level="info">
             <AppenderRef ref="ConsoleAppender"/>
+            <AppenderRef ref="FileAppender"/>
         </Root>
     </Loggers>
 </Configuration>
