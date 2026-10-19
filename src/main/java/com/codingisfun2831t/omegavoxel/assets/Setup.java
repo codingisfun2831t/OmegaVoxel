@@ -266,6 +266,11 @@ public class Setup {
                             parent.mkdirs();
                         }
 
+                        if (newFile.exists()) {
+                            // skip
+                            continue;
+                        }
+
                         try (InputStream is = zipFile.getInputStream(entry);
                              FileOutputStream fos = new FileOutputStream(newFile)) {
                             byte[] buffer = new byte[4096];
