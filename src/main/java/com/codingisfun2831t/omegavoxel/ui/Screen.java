@@ -1,10 +1,10 @@
 package com.codingisfun2831t.omegavoxel.ui;
 
-import com.codingisfun2831t.omegavoxel.Game;
+import com.codingisfun2831t.omegavoxel.OmegaVoxel;
 
 public abstract class Screen {
     protected Widget root;
-    public Game game;
+    public OmegaVoxel game;
 
     private Widget hoveredElement;
     private Widget activeElement;

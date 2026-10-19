@@ -1,6 +1,6 @@
 package com.codingisfun2831t.omegavoxel.ui.screens;
 
-import com.codingisfun2831t.omegavoxel.Game;
+import com.codingisfun2831t.omegavoxel.OmegaVoxel;
 import com.codingisfun2831t.omegavoxel.Translations;
 import com.codingisfun2831t.omegavoxel.ui.LayoutContext;
 import com.codingisfun2831t.omegavoxel.ui.Screen;
@@ -24,7 +24,7 @@ public class MainMenuScreen extends Screen {
         pauseLabel = new Label("OmegaVoxel");
         root.addChild(pauseLabel);
 
-        versionLabel = new Label(Game.TITLE);
+        versionLabel = new Label(OmegaVoxel.TITLE);
         root.addChild(versionLabel);
 
         play = new Button(Translations.get("menu.play"), 200, () -> {

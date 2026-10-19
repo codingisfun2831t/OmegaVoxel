@@ -19,10 +19,10 @@ public final class CrashReport {
         appendLine(sb, "Total control count: " + screen.getDescendantCount());
     }
 
-    public static String generateCrashReport(Game g, Throwable t) {
+    public static String generateCrashReport(OmegaVoxel g, Throwable t) {
         StringBuilder sb = new StringBuilder();
         appendLine(sb, "--- OmegaVoxel crash report ---");
-        appendLine(sb, "Version: " + Game.VERSION);
+        appendLine(sb, "Version: " + OmegaVoxel.VERSION);
         appendLine(sb, "Java: " + System.getProperty("java.version"));
         appendLine(sb, "OS: " + System.getProperty("os.name") + " " +
                 System.getProperty("os.version") + " " +

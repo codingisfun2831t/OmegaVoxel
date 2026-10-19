@@ -38,8 +38,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class Game implements Runnable {
-    private static final Logger logger = LoggerFactory.getLogger(Game.class);
+public class OmegaVoxel implements Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(OmegaVoxel.class);
     public static String VERSION;
     public static final String TITLE;
 
@@ -48,7 +48,7 @@ public class Game implements Runnable {
 
         String path = "/META-INF/maven/com.codingisfun2831t.omegavoxel/OmegaVoxel/pom.properties";
 
-        try (InputStream stream = Game.class.getResourceAsStream(path)) {
+        try (InputStream stream = OmegaVoxel.class.getResourceAsStream(path)) {
             if (stream != null) {
                 Properties props = new Properties();
                 props.load(stream);
@@ -120,7 +120,7 @@ public class Game implements Runnable {
         return currentScreen;
     }
 
-    public Game(int width, int height) {
+    public OmegaVoxel(int width, int height) {
         this.width = width;
         this.height = height;
     }
@@ -199,7 +199,7 @@ public class Game implements Runnable {
     private void resizeScreen(Screen screen) {
         screen.getRoot().setBounds(res.getRectangle());
 
-        Game me = this;
+        OmegaVoxel me = this;
         screen.fixLayout(new LayoutContext() {
             @Override
             public int measureText(String text) {
@@ -552,7 +552,7 @@ public class Game implements Runnable {
 
 
     public static void main(String[] args) {
-        int exitCode = new CommandLine(new Game(800, 600)).execute(args);
+        int exitCode = new CommandLine(new OmegaVoxel(800, 600)).execute(args);
         System.exit(exitCode);
     }
 

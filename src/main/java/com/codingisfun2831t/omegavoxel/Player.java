@@ -184,11 +184,11 @@ public class Player {
     }
 
     public void loadFromNBT(CompoundTag tag) {
-        Game.ensureNBTValue(tag, "X");
-        Game.ensureNBTValue(tag, "Y");
-        Game.ensureNBTValue(tag, "Z");
-        Game.ensureNBTValue(tag, "Yaw");
-        Game.ensureNBTValue(tag, "Pitch");
+        OmegaVoxel.ensureNBTValue(tag, "X");
+        OmegaVoxel.ensureNBTValue(tag, "Y");
+        OmegaVoxel.ensureNBTValue(tag, "Z");
+        OmegaVoxel.ensureNBTValue(tag, "Yaw");
+        OmegaVoxel.ensureNBTValue(tag, "Pitch");
 
         setPos(tag.getFloat("X"), tag.getFloat("Y"), tag.getFloat("Z"));
         yaw = tag.getFloat("Yaw");
