@@ -53,7 +53,7 @@ public class BlockSelectionScreen extends Screen {
         container = new Background();
 
         List<Block> blocks = Block.getBlocksInInventory();
-        int rows = blocks.size() / 9;
+        int rows = (int)Math.ceil((float)blocks.size() / 9f);
         int rowsHeight = rows * (SLOT_SIZE + SLOT_PADDING) - SLOT_PADDING;
 
         container.setSize(PADDING * 2 + (9 * (SLOT_SIZE + SLOT_PADDING) - SLOT_PADDING), PADDING * 3 + 8 + rowsHeight);
