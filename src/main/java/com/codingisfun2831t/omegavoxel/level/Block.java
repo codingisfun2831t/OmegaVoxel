@@ -1,6 +1,7 @@
 package com.codingisfun2831t.omegavoxel.level;
 
 import com.codingisfun2831t.omegavoxel.Face;
+import com.codingisfun2831t.omegavoxel.Translations;
 import com.codingisfun2831t.omegavoxel.rendering.Renderer;
 import com.codingisfun2831t.omegavoxel.ui.Color;
 
@@ -17,6 +18,8 @@ public class Block {
     private byte[] tex;
     private boolean hideInInventory = false;
 
+    private String stringId = null;
+
     /**
      * List of all blocks.
      */
@@ -24,15 +27,15 @@ public class Block {
 
     private static final List<Block> blocksInInventory = new ArrayList<>();
 
-    public static final Block STONE = new Block().texture(1).register(1);
-    public static final Block GRASS = new BlockGrass().texture(0, 3, 2).register(2);
-    public static final Block DIRT = new Block().texture(2).register(3);
-    public static final Block COBBLESTONE = new Block().texture(16).register(4);
-    public static final Block LOG = new Block().texture(21, 20, 21).register(17);
-    public static final Block PLANKS = new Block().texture(4).register(5);
-    public static final Block SAND = new Block().texture(18).register(12);
-    public static final Block GRAVEL = new Block().texture(19).register(13);
-    public static final Block BEDROCK = new Block().texture(17).register(7);
+    public static final Block STONE = new Block().texture(1).register(1, "stone");
+    public static final Block GRASS = new BlockGrass().texture(0, 3, 2).register(2, "grass");
+    public static final Block DIRT = new Block().texture(2).register(3, "dirt");
+    public static final Block COBBLESTONE = new Block().texture(16).register(4, "cobblestone");
+    public static final Block LOG = new Block().texture(21, 20, 21).register(17, "log");
+    public static final Block PLANKS = new Block().texture(4).register(5, "planks");
+    public static final Block SAND = new Block().texture(18).register(12, "sand");
+    public static final Block GRAVEL = new Block().texture(19).register(13, "gravel");
+    public static final Block BEDROCK = new Block().texture(17).register(7, "bedrock");
 
     public Block() {
         this.id = 0;
@@ -59,12 +62,13 @@ public class Block {
     /**
      * Register this block to an ID.
      */
-    public Block register(int id) {
+    public Block register(int id, String stringId) {
         this.id = (byte)id;
+        this.stringId = stringId;
         blocks[id] = this;
 
         if (!hideInInventory) blocksInInventory.add(this);
-        
+
         return this;
     }
 
@@ -197,5 +201,17 @@ public class Block {
 
     protected Color getSideColor(Face face) {
         return Color.WHITE;
+    }
+
+    public String getNameKey() {
+        return "block." + stringId;
+    }
+
+    public String getName() {
+        return Translations.get(getNameKey());
+    }
+
+    public String getStringId() {
+        return stringId;
     }
 }

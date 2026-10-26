@@ -16,3 +16,14 @@ debug.mainText = %s %d fps, %d chunk updates
 options.title = Options
 options.fov = FOV
 options.renderDist = Render Distance
+
+# Blocks
+block.stone = Stone
+block.grass = Grass
+block.dirt = Dirt
+block.cobblestone = Cobblestone
+block.log = Log
+block.planks = Planks
+block.sand = Sand
+block.gravel = Gravel
+block.bedrock = Bedrock
