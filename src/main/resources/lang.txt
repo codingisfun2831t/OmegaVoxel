@@ -5,6 +5,9 @@ gui.done = Done
 menu.play = Play
 menu.quit = Quit Game
 
+# Other menu strings
+menu.blockSelection = Block Selection
+
 # Pause menu
 menu.pause.backToGame = Back to Game
 menu.pause.quit = Save and Quit
