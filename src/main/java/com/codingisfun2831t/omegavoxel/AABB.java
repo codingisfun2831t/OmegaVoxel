@@ -147,6 +147,15 @@ public class AABB {
         return c.x1 > this.x0 && c.x0 < this.x1 ? (c.y1 > this.y0 && c.y0 < this.y1 ? c.z1 > this.z0 && c.z0 < this.z1 : false) : false;
     }
 
+    public void set(float x0, float y0, float z0, float x1, float y1, float z1) {
+        this.x0 = x0;
+        this.y0 = y0;
+        this.z0 = z0;
+        this.x1 = x1;
+        this.y1 = y1;
+        this.z1 = z1;
+    }
+
     public void move(float xa, float ya, float za) {
         this.x0 += xa;
         this.y0 += ya;

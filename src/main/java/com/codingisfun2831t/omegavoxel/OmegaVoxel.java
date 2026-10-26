@@ -429,6 +429,8 @@ public class OmegaVoxel implements Runnable {
             if (player.selectedSlot > 8) player.selectedSlot = (player.selectedSlot - 9) % 9;
         });
 
+        AABB placeBlockAABB = new AABB(0, 0, 0, 0, 0, 0);
+
         GLFW.glfwSetMouseButtonCallback(window, (windowHandle, button, action, mods) -> {
             if (currentScreen != null) {
                 if (action == GLFW.GLFW_PRESS) {
@@ -458,6 +460,10 @@ public class OmegaVoxel implements Runnable {
                         int fz = hitResult.hitFace.getZ(hitResult.blockPos.z);
 
                         if (level.getBlockID(fx, fy, fz) != 0) break;
+
+                        placeBlockAABB.set(fx, fy, fz, fx+1.0F, fy+1.0F, fz+1.0F);
+                        if (player.bb.intersects(placeBlockAABB)) break;
+
                         level.setBlock(fx, fy, fz, player.hotbar[player.selectedSlot]);
                         break;
                 }
