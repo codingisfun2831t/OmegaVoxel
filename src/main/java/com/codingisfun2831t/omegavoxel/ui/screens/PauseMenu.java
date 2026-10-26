@@ -23,18 +23,18 @@ public class PauseMenu extends Screen {
         root.addChild(pauseLabel);
 
         backToGame = new Button(Translations.get("menu.pause.backToGame"), 200, () -> {
-            game.navigateTo(null);
+            this.game.navigateTo(null);
         });
         root.addChild(backToGame);
 
         options = new Button(Translations.get("options.title"), 200, () -> {
-            game.navigateTo(new MainOptionsScreen(game.options).withParent(this));
+            this.game.navigateTo(new MainOptionsScreen(game.options).withParent(this));
         });
         root.addChild(options);
 
         quit = new Button(Translations.get("menu.pause.quit"), 200, () -> {
-            game.saveLevel();
-            game.quitLevel();
+            this.game.saveLevel();
+            this.game.quitLevel();
         });
         root.addChild(quit);
     }
