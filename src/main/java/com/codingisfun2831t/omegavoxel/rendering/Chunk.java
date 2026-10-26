@@ -3,6 +3,7 @@ package com.codingisfun2831t.omegavoxel.rendering;
 import com.codingisfun2831t.omegavoxel.Camera;
 import com.codingisfun2831t.omegavoxel.level.Block;
 import com.codingisfun2831t.omegavoxel.level.Level;
+import com.codingisfun2831t.omegavoxel.level.RenderPass;
 import org.lwjgl.opengl.GL11;
 
 public class Chunk {
@@ -18,7 +19,7 @@ public class Chunk {
     private Level lvl;
     private Renderer r;
 
-    private int list;
+    private int lists;
     private boolean dirty = true;
 
     public static final int MAX_UPDATES = 50;
@@ -34,15 +35,15 @@ public class Chunk {
         this.z1 = z + CHUNK_SIZE;
         this.lvl = lvl;
         this.r = r;
-        this.list = GL11.glGenLists(1);
+        this.lists = GL11.glGenLists(2);
     }
 
     public void markDirty() {
         dirty = true;
     }
 
-    public void rebuild() {
-        GL11.glNewList(list, GL11.GL_COMPILE);
+    private void rebuildPass(int idx, RenderPass pass) {
+        GL11.glNewList(lists+idx, GL11.GL_COMPILE);
         r.start(GL11.GL_QUADS);
 
         for (int x = x0; x < x1; x++) {
@@ -53,7 +54,7 @@ public class Chunk {
                     if (id != 0) {
                         Block block = Block.blocks[id];
 
-                        if (block != null) {
+                        if (block != null && block.getRenderPass() == pass) {
                             block.render(lvl, r, x, y, z);
                         }
                     }
@@ -62,22 +63,30 @@ public class Chunk {
         }
         r.flush();
         GL11.glEndList();
+    }
+    public void rebuild() {
+        rebuildPass(0, RenderPass.NORMAL);
+        rebuildPass(1, RenderPass.TRANSPARENT);
 
         dirty = false;
     }
 
     public void destroy() {
-        GL11.glDeleteLists(list, 1);
+        GL11.glDeleteLists(lists, 2);
     }
 
-    public void render() {
+    public void render(RenderPass pass) {
         if (dirty && updatesThisFrame < MAX_UPDATES) {
             rebuild();
             updatesThisFrame++;
             totalUpdates++;
         }
 
-        GL11.glCallList(this.list);
+        if (pass == RenderPass.NORMAL)
+            GL11.glCallList(this.lists);
+        else if (pass == RenderPass.TRANSPARENT) {
+            GL11.glCallList(this.lists+1);
+        }
     }
 
     public int chunkX() {

@@ -5,6 +5,7 @@ import com.codingisfun2831t.omegavoxel.HitResult;
 import com.codingisfun2831t.omegavoxel.assets.Texture;
 import com.codingisfun2831t.omegavoxel.level.Level;
 import com.codingisfun2831t.omegavoxel.level.LevelListener;
+import com.codingisfun2831t.omegavoxel.level.RenderPass;
 import com.codingisfun2831t.omegavoxel.options.Options;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
@@ -105,7 +106,12 @@ public class LevelRenderer implements LevelListener {
         GL11.glFogf(GL11.GL_FOG_END, render - 16);
 
         for (Chunk chunk : renderChunks)
-            chunk.render();
+            chunk.render(RenderPass.NORMAL);
+
+        GL11.glDepthMask(false);
+        for (Chunk chunk : renderChunks)
+            chunk.render(RenderPass.TRANSPARENT);
+        GL11.glDepthMask(true);
 
         GL11.glDisable(GL11.GL_FOG);
     }

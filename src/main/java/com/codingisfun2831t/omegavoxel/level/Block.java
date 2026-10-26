@@ -14,9 +14,10 @@ import java.util.List;
  * Class for a single block type.
  */
 public class Block {
-    private byte id;
-    private byte[] tex;
-    private boolean hideInInventory = false;
+    protected byte id;
+    protected byte[] tex;
+    protected boolean hideInInventory = false;
+    protected RenderPass renderPass = RenderPass.NORMAL;
 
     private String stringId = null;
 
@@ -36,6 +37,7 @@ public class Block {
     public static final Block SAND = new Block().texture(18).register(12, "sand");
     public static final Block GRAVEL = new Block().texture(19).register(13, "gravel");
     public static final Block BEDROCK = new Block().texture(17).register(7, "bedrock");
+    public static final Block GLASS = new BlockGlass().texture(49).register(20, "glass");
 
     public Block() {
         this.id = 0;
@@ -57,6 +59,19 @@ public class Block {
 
         return this;
     }
+
+    /**
+     * Set the render pass this block belongs to.
+     */
+    public Block setRenderPass(RenderPass pass) {
+        this.renderPass = pass;
+        return this;
+    }
+
+    public RenderPass getRenderPass() {
+        return renderPass;
+    }
+
 
 
     /**
@@ -162,7 +177,9 @@ public class Block {
             int fy = face.getY((int)y0);
             int fz = face.getZ((int)z0);
 
-            if (l.getBlockID(fx, fy, fz) != 0) return;
+            byte id = l.getBlockID(fx, fy, fz);
+            if (id != 0 && blocks[id].cullNeighborsFace(this, face)) return;
+
             b = l.getBrightness(fx, fy, fz);
         }
 
@@ -213,5 +230,9 @@ public class Block {
 
     public String getStringId() {
         return stringId;
+    }
+
+    public boolean cullNeighborsFace(Block neighbor, Face face) {
+        return true;
     }
 }
