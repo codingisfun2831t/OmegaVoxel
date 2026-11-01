@@ -129,7 +129,7 @@ public class LevelRenderer implements LevelListener {
         float z1 = h.blockPos.z + 1 + e;
 
         r.bind((Texture) null);
-        r.c(0.0f, 0.0f, 0.0f, 0.6f);
+        r.c(0, 0, 0, 160);
 
         GL11.glDepthMask(false);
         GL11.glLineWidth(2.0f);

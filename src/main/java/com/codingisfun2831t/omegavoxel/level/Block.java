@@ -111,9 +111,9 @@ public class Block {
         return Collections.unmodifiableList(blocksInInventory);
     }
 
-    private static final float YBRIGHT = 1.0F;
-    private static final float ZBRIGHT = 0.8F;
-    private static final float XBRIGHT = 0.6F;
+    private static final float YBRIGHT = 1.0f;
+    private static final float ZBRIGHT = 0.8f;
+    private static final float XBRIGHT = 0.6f;
 
     protected void renderFace(Renderer r, float x0, float y0, float z0, float x1, float y1, float z1, byte tex, Face face, float b) {
         int u0 = (tex % 16) * 16;
@@ -203,15 +203,10 @@ public class Block {
         float y1 = y + 1.0F;
         float z1 = z + 1.0F;
 
-        r.c(ZBRIGHT, ZBRIGHT, ZBRIGHT);
         renderCulledFace(l, r, x0, y0, z0, x1, y1, z1, tex[Face.FRONT.ordinal()], Face.FRONT);
         renderCulledFace(l, r, x0, y0, z0, x1, y1, z1, tex[Face.BACK.ordinal()], Face.BACK);
-
-        r.c(YBRIGHT, YBRIGHT, YBRIGHT);
         renderCulledFace(l, r, x0, y0, z0, x1, y1, z1, tex[Face.TOP.ordinal()], Face.TOP);
         renderCulledFace(l, r, x0, y0, z0, x1, y1, z1, tex[Face.BOTTOM.ordinal()], Face.BOTTOM);
-
-        r.c(XBRIGHT, XBRIGHT, XBRIGHT);
         renderCulledFace(l, r, x0, y0, z0, x1, y1, z1, tex[Face.RIGHT.ordinal()], Face.RIGHT);
         renderCulledFace(l, r, x0, y0, z0, x1, y1, z1, tex[Face.LEFT.ordinal()], Face.LEFT);
     }

@@ -109,7 +109,7 @@ public class UIRenderer {
 
         r.bind(tex);
         r.start(GL11.GL_QUADS);
-        r.c(1.0F, 1.0F, 1.0F, 1.0F);
+        r.c(255, 255, 255);
 
         r.v2duv(left, top, u, v);
         r.v2duv(right, top, u + uvWidth, v);
