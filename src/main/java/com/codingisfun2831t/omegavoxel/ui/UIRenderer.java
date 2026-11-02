@@ -24,6 +24,7 @@ public class UIRenderer {
         translation = new Vector2i();
     }
 
+    private ScaledResolution res;
     public void begin(ScaledResolution res) {
         translations.clear();
         translation.set(0,0);
@@ -39,6 +40,16 @@ public class UIRenderer {
 
         GL11.glMatrixMode(GL11.GL_MODELVIEW);
         GL11.glLoadIdentity();
+
+        this.res = res;
+    }
+
+    public int getWidth() {
+        return res.width;
+    }
+
+    public int getHeight() {
+        return res.height;
     }
 
     public void end() {
@@ -55,6 +66,10 @@ public class UIRenderer {
 
     public void popTranslation() {
         translation.set(translations.pop());
+    }
+
+    public int measureText(String str) {
+        return text.measureText(str);
     }
 
     public void drawText(int x, int y, String str) {

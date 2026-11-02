@@ -160,6 +160,8 @@ public class Renderer {
         buf.putFloat(this.v);
 
         vertexCount++;
+        if (inCallList) callListVertices++;
+        else frameVertexCount++;
     }
 
     /**
@@ -241,5 +243,34 @@ public class Renderer {
      */
     public void useTextures(Textures texs) {
         this.texs = texs;
+    }
+
+    private boolean inCallList = false;
+    private int callListVertices = 0;
+
+    public int genLists(int s) {
+        return GL11.glGenLists(s);
+    }
+
+    public void startList(int list) {
+        GL11.glNewList(list, GL11.GL_COMPILE);
+        inCallList = true;
+        callListVertices = 0;
+    }
+
+    public int endList() {
+        GL11.glEndList();
+        inCallList = false;
+        return callListVertices;
+    }
+
+    private int frameVertexCount = 0;
+
+    public void reset() {
+        frameVertexCount = 0;
+    }
+
+    public int getFrameVertexCount() {
+        return frameVertexCount;
     }
 }

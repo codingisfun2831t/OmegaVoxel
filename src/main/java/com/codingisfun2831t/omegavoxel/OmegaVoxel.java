@@ -95,6 +95,9 @@ public class OmegaVoxel implements Runnable {
     public Options options;
     private Path dataDir;
 
+    @Option(names = {"--debug"})
+    public boolean showDebugInfo = false;
+
     private long startStartupTime = 0;
 
     public Path getDataDir() {
@@ -419,6 +422,11 @@ public class OmegaVoxel implements Runnable {
                         } else if (currentScreen == null) {
                             navigateTo(new BlockSelectionScreen());
                         }
+
+                        break;
+                    case GLFW.GLFW_KEY_F3:
+                        showDebugInfo = !showDebugInfo;
+                        break;
                 }
             }
         });
@@ -491,6 +499,7 @@ public class OmegaVoxel implements Runnable {
 
             GL11.glClearColor(0.47f, 0.63f, 0.80f, 1.0f);
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+            r.reset();
 
             int ticks = moveTimer.update();
             for (int i = 0; i < ticks; i++) {
@@ -538,6 +547,7 @@ public class OmegaVoxel implements Runnable {
             GLFW.glfwPollEvents();
 
             frames++;
+            lastFrameVertexCount = r.getFrameVertexCount();
 
             long currentTime = System.currentTimeMillis();
             if (currentTime >= this._lastTime + 1000L) {
@@ -571,5 +581,27 @@ public class OmegaVoxel implements Runnable {
         if (!tag.containsKey(key)) {
             throw new RuntimeException("Key \"" + key + "\" doesn't exist.");
         }
+    }
+
+    public int getStatChunksRendered() {
+        return levelRenderer.statChunksRendered;
+    }
+
+    public int getStatChunksBuilt() {
+        return levelRenderer.statChunksBuilt;
+    }
+
+    public int getChunkCount() {
+        return levelRenderer.getChunkCount();
+    }
+
+    public int getLevelVertexCount() {
+        return levelRenderer.getVertexCount();
+    }
+
+    private int lastFrameVertexCount;
+
+    public int getLastFrameVertexCount() {
+        return lastFrameVertexCount + getLevelVertexCount();
     }
 }

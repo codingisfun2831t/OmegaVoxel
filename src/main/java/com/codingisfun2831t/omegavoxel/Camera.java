@@ -58,12 +58,13 @@ public class Camera {
     public void applyViewMatrix() {
         view.identity()
                 .rotateX((float) Math.toRadians(-pitch))
-                .rotateY((float) Math.toRadians(-yaw))
+                .rotateY((float) Math.toRadians(yaw + 180.0f))
                 .translate(-position.x, -position.y, -position.z);
 
         GL11.glMatrixMode(GL11.GL_MODELVIEW);
         GL11.glLoadMatrixf(view.get(this.matrixBuf));
     }
+
 
     public void move(long window) {
         float speed = 0.2F;
@@ -110,8 +111,8 @@ public class Camera {
 
         return new Vector3f(
                 -(float) Math.sin(yawRad) * (float) Math.cos(pitchRad),
-                (float) Math.sin(pitchRad),
-                -(float) Math.cos(yawRad) * (float) Math.cos(pitchRad)
+                 (float) Math.sin(pitchRad),
+                (float) Math.cos(yawRad) * (float) Math.cos(pitchRad)
         );
     }
 }

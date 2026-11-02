@@ -14,6 +14,24 @@ menu.pause.quit = Save and Quit
 
 # Debug
 debug.mainText = %s %d fps, %d chunk updates
+debug.xyz = XYZ: %.3f / %.5f / %.3f
+debug.mem = Mem: %d/%dMB
+debug.allocated = Allocated: %d/%dMB
+debug.facing = Facing: %s (Towards %s) (%.1f / %.1f)
+
+debug.north = north
+debug.east = east
+debug.south = south
+debug.west = west
+
+debug.px = Positive X
+debug.nx = Negative X
+debug.pz = Positive Z
+debug.nz = Negative Z
+
+debug.chunks = Chunks: %d/%d built, %d rendered
+debug.vertices.level = Level vertices: %d
+debug.vertices.total = Last frame total vertices: %d
 
 # Options
 options.title = Options

@@ -25,6 +25,9 @@ public class LevelRenderer implements LevelListener {
     private int zChunks;
     private Chunk[] chunks;
 
+    public int statChunksRendered = 0;
+    public int statChunksBuilt = 0;
+
     private final List<Chunk> renderChunks = new ArrayList<>();
 
     private int getChunkIndex(int x, int y, int z) {
@@ -72,6 +75,7 @@ public class LevelRenderer implements LevelListener {
         }
     }
 
+    private int vertexCount;
     public void render(Camera c) {
         if (lvl == null) return;
 
@@ -105,15 +109,29 @@ public class LevelRenderer implements LevelListener {
         GL11.glFogf(GL11.GL_FOG_START, render - 32);
         GL11.glFogf(GL11.GL_FOG_END, render - 16);
 
-        for (Chunk chunk : renderChunks)
+        statChunksRendered = 0;
+
+        vertexCount = 0;
+
+        for (Chunk chunk : renderChunks) {
+            statChunksRendered++;
             chunk.render(RenderPass.NORMAL);
+            vertexCount += chunk.getVertexCount();
+        }
 
         GL11.glDepthMask(false);
-        for (Chunk chunk : renderChunks)
+        for (Chunk chunk : renderChunks) {
             chunk.render(RenderPass.TRANSPARENT);
+        }
         GL11.glDepthMask(true);
 
         GL11.glDisable(GL11.GL_FOG);
+
+        // collect stats
+        statChunksBuilt = 0;
+        for (Chunk chunk : chunks) {
+            if (chunk.isBuilt()) statChunksBuilt++;
+        }
     }
 
     public void drawSelectionBox(HitResult h) {
@@ -240,4 +258,11 @@ public class LevelRenderer implements LevelListener {
         setDirty(x - 1, y0 - 1, z - 1, x + 1, y1 + 1, z + 1);
     }
 
+    public int getChunkCount() {
+        return chunks.length;
+    }
+
+    public int getVertexCount() {
+        return vertexCount;
+    }
 }

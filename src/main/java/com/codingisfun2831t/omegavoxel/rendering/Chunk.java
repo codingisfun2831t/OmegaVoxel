@@ -26,6 +26,8 @@ public class Chunk {
     public static int updatesThisFrame = 0;
     public static int totalUpdates = 0;
 
+    private int vertexCount = 0;
+
     public Chunk(Level lvl, Renderer r, int x, int y, int z) {
         this.x0 = x;
         this.y0 = y;
@@ -43,7 +45,7 @@ public class Chunk {
     }
 
     private void rebuildPass(int idx, RenderPass pass) {
-        GL11.glNewList(lists+idx, GL11.GL_COMPILE);
+        r.startList(lists+idx);
         r.start(GL11.GL_QUADS);
 
         for (int x = x0; x < x1; x++) {
@@ -62,13 +64,17 @@ public class Chunk {
             }
         }
         r.flush();
-        GL11.glEndList();
+        vertexCount += r.endList();
     }
+
+    private boolean built;
     public void rebuild() {
+        vertexCount = 0;
         rebuildPass(0, RenderPass.NORMAL);
         rebuildPass(1, RenderPass.TRANSPARENT);
 
         dirty = false;
+        built = true;
     }
 
     public void destroy() {
@@ -82,11 +88,17 @@ public class Chunk {
             totalUpdates++;
         }
 
+        if (!built) return;
+
         if (pass == RenderPass.NORMAL)
             GL11.glCallList(this.lists);
         else if (pass == RenderPass.TRANSPARENT) {
             GL11.glCallList(this.lists+1);
         }
+    }
+
+    public boolean isBuilt() {
+        return built;
     }
 
     public int chunkX() {
@@ -103,5 +115,9 @@ public class Chunk {
 
     public boolean isVisible(Camera c) {
         return c.boxInFrustum(x0, y0, z0, x1, y1, z1);
+    }
+
+    public int getVertexCount() {
+        return vertexCount;
     }
 }

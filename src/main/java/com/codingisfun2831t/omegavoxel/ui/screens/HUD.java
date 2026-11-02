@@ -3,6 +3,7 @@ package com.codingisfun2831t.omegavoxel.ui.screens;
 import com.codingisfun2831t.omegavoxel.Player;
 import com.codingisfun2831t.omegavoxel.ui.LayoutContext;
 import com.codingisfun2831t.omegavoxel.ui.Screen;
+import com.codingisfun2831t.omegavoxel.ui.UIRenderer;
 import com.codingisfun2831t.omegavoxel.ui.widgets.Crosshair;
 import com.codingisfun2831t.omegavoxel.ui.widgets.Hotbar;
 import com.codingisfun2831t.omegavoxel.ui.widgets.Label;
@@ -39,7 +40,20 @@ public class HUD extends Screen {
     public void setDebug(String text) {
         debug.text = text;
     }
+
     public void setPlayer(Player plr) {
-    hotbar.setPlayer(plr);
+        hotbar.setPlayer(plr);
+    }
+
+    private DebugInfoRenderer debugRenderer = new DebugInfoRenderer();
+
+    @Override
+    public void render(UIRenderer r) {
+        super.render(r);
+
+        if (game.showDebugInfo) {
+            debugRenderer.useRenderer(r);
+            debugRenderer.render(game);
+        }
     }
 }

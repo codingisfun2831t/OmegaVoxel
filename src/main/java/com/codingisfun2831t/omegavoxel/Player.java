@@ -62,7 +62,7 @@ public class Player {
     }
 
     public void turn(float xo, float yo) {
-        this.yaw = (float)((double)this.yaw - (double)xo * 0.15D);
+        this.yaw = (float)((double)this.yaw + (double)xo * 0.15D);
         this.pitch = (float)((double)this.pitch + (double)yo * 0.15D);
         if(this.pitch < -90.0F) {
             this.pitch = -90.0F;
@@ -72,6 +72,15 @@ public class Player {
             this.pitch = 90.0F;
         }
 
+        clampYaw();
+    }
+
+    public void clampYaw() {
+        yaw = (yaw % 360 + 360) % 360;
+
+        if (yaw > 180) {
+            yaw -= 360;
+        }
     }
 
     private boolean isKeyDown(long window, int key) {
@@ -94,11 +103,11 @@ public class Player {
         }
 
         if(isKeyDown(window, GLFW.GLFW_KEY_LEFT) || isKeyDown(window, GLFW.GLFW_KEY_A)) {
-            --xa;
+            ++xa;
         }
 
         if(isKeyDown(window, GLFW.GLFW_KEY_RIGHT) || isKeyDown(window, GLFW.GLFW_KEY_D)) {
-            ++xa;
+            --xa;
         }
 
         if(isKeyDown(window, GLFW.GLFW_KEY_SPACE) && this.onGround) {
@@ -169,7 +178,7 @@ public class Player {
             float sin = (float)Math.sin((double)this.yaw * Math.PI / 180.0D);
             float cos = (float)Math.cos((double)this.yaw * Math.PI / 180.0D);
             this.xd += xa * cos + za * sin;
-            this.zd += za * cos - xa * sin;
+            this.zd -= za * cos - xa * sin;
         }
     }
 
