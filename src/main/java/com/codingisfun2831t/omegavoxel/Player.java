@@ -13,21 +13,39 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import static com.codingisfun2831t.omegavoxel.NBTUtils.ensureNBTValue;
+import static com.codingisfun2831t.omegavoxel.NBTUtils.isValueFloat;
 
+/**
+ * Represents the player, with all the info.
+ */
 public class Player {
     private static final Logger logger = LoggerFactory.getLogger(Player.class);
+
+    // last tick pos
     public float xo;
     public float yo;
     public float zo;
+
+    // current pos
     public float x;
     public float y;
     public float z;
+
+    // velocity
     public float xd;
     public float yd;
     public float zd;
+
+    // turn angle
     public float yaw;
     public float pitch;
+
+    /**
+     * Represents our hitbox.
+     */
     public AABB bb;
+
     public boolean onGround = false;
     public Block[] hotbar = new Block[] {
             Block.DIRT, Block.GRASS, Block.STONE, Block.COBBLESTONE,
@@ -50,6 +68,9 @@ public class Player {
     public static final float h = 1.8F;
     public static final float eyeHeight = 1.62f;
 
+    /**
+     * Set position and update hitbox.
+     */
     public void setPos(float x, float y, float z) {
         this.x = x;
         this.y = y;
@@ -57,6 +78,9 @@ public class Player {
         this.bb = new AABB(x - w / 2, y, z - w / 2, x + w / 2, y + h, z + w / 2);
     }
 
+    /**
+     * Switch to a block in the inventory, adding it to the current slot if not currently in hotbar.
+     */
     public void switchToBlock(Block b) {
         for (int i = 0; i < hotbar.length; i++) {
             if (hotbar[i] == b) {
@@ -70,9 +94,15 @@ public class Player {
         hotbar[selectedSlot] = b;
     }
 
+    /**
+     * Turn using X and Y mosue delta values.
+     */
     public void turn(float xo, float yo) {
-        this.yaw = (float)((double)this.yaw + (double)xo * 0.15D);
-        this.pitch = (float)((double)this.pitch + (double)yo * 0.15D);
+        double sensitivity = 0.15D;
+        this.yaw = (float)((double)this.yaw + (double)xo * sensitivity);
+        this.pitch = (float)((double)this.pitch + (double)yo * sensitivity);
+
+        // limit pitch
         if(this.pitch < -90.0F) {
             this.pitch = -90.0F;
         }
@@ -84,6 +114,9 @@ public class Player {
         clampYaw();
     }
 
+    /**
+     * Clamp yaw from -180 to 180.
+     */
     public void clampYaw() {
         yaw = (yaw % 360 + 360) % 360;
 
@@ -96,10 +129,16 @@ public class Player {
         return GLFW.glfwGetKey(window, key) == GLFW.GLFW_PRESS;
     }
 
+    /**
+     * "Tick", i.e. handle movement.
+     */
     public void tick(Level level, long window) {
+        // new tick!
         this.xo = this.x;
         this.yo = this.y;
         this.zo = this.z;
+
+        // get xa and ya, movement
         float xa = 0.0F;
         float ya = 0.0F;
 
@@ -119,13 +158,18 @@ public class Player {
             --xa;
         }
 
+        // jump
         if(isKeyDown(window, GLFW.GLFW_KEY_SPACE) && this.onGround) {
             this.yd = 0.12F;
         }
 
+        // move
         this.moveRelative(xa, ya, this.onGround ? 0.02F : 0.005F);
         this.yd = (float)((double)this.yd - 0.005D);
+
         this.move(level, this.xd, this.yd, this.zd);
+
+        // slow down a lil
         this.xd *= 0.91F;
         this.yd *= 0.98F;
         this.zd *= 0.91F;
@@ -134,10 +178,14 @@ public class Player {
             this.zd *= 0.8F;
         }
 
+        // set walktime for animation
         float speed = (float) Math.sqrt(xd * xd + zd * zd);
         walkTime += speed * 2f;
     }
 
+    /**
+     * Move in XYZ, checking collision.
+     */
     public void move(Level level, float xa, float ya, float za) {
         float xaOrg = xa;
         float yaOrg = ya;
@@ -180,6 +228,9 @@ public class Player {
         this.z = (this.bb.z0 + this.bb.z1) / 2.0F;
     }
 
+    /**
+     * Set xd, yd, and zd values based off X, Z, and speed - with XZ being 0-1 (WASD/joystick/whatever).
+     */
     public void moveRelative(float xa, float za, float speed) {
         float dist = xa * xa + za * za;
         if(dist >= 0.01F) {
@@ -193,6 +244,7 @@ public class Player {
         }
     }
 
+    // NBT
     public CompoundTag getNBT() {
         CompoundTag nbt = new CompoundTag();
         nbt.putFloat("X", x);
@@ -204,11 +256,11 @@ public class Player {
     }
 
     public void loadFromNBT(CompoundTag tag) {
-        OmegaVoxel.ensureNBTValue(tag, "X");
-        OmegaVoxel.ensureNBTValue(tag, "Y");
-        OmegaVoxel.ensureNBTValue(tag, "Z");
-        OmegaVoxel.ensureNBTValue(tag, "Yaw");
-        OmegaVoxel.ensureNBTValue(tag, "Pitch");
+        ensureNBTValue(tag, "X");
+        ensureNBTValue(tag, "Y");
+        ensureNBTValue(tag, "Z");
+        ensureNBTValue(tag, "Yaw");
+        ensureNBTValue(tag, "Pitch");
 
         setPos(tag.getFloat("X"), tag.getFloat("Y"), tag.getFloat("Z"));
         yaw = tag.getFloat("Yaw");

@@ -20,6 +20,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 // this code SUCCCKSSSSS man
+// but I'm too lazy to improve it
+// so
+// deal
+// with
+// it
 
 /**
  * Dialog to extract assets from the Beta JAR.

@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+/**
+ * Class for tanslating string.
+ */
 public class Translations {
     private static final Translations INSTANCE;
 
@@ -30,6 +33,9 @@ public class Translations {
         }
     }
 
+    /**
+     * Get a single translation via a key.
+     */
     public static String get(String key) {
         return INSTANCE.props.getProperty(key, key);
     }

@@ -3,9 +3,22 @@ package com.codingisfun2831t.omegavoxel;
 import com.codingisfun2831t.omegavoxel.level.Level;
 import org.joml.Vector3f;
 
+/**
+ * Helper class for DDA voxel raycasting.
+ */
 public class Raycast {
     private Raycast() {}
 
+    /**
+     * Commit a Voxel raycast using a origin and direction, a max distance to travel, a level to
+     * check blocks, and a HitResult class to output to.
+     * @param origin Point in space ot start from.
+     * @param direction Direction vector.
+     * @param maxDistance Max distance to recognize a hit.
+     * @param level Level to check if a block is solid.
+     * @param out If we hit a block, a class to output the hit to.
+     * @return
+     */
     public static Vector3f raycast(Vector3f origin, Vector3f direction, float maxDistance, Level level, HitResult out) {
         if (out != null) out.hit = false;
 
@@ -93,6 +106,8 @@ public class Raycast {
         float finalX = origin.x + direction.x * maxDistance;
         float finalY = origin.y + direction.y * maxDistance;
         float finalZ = origin.z + direction.z * maxDistance;
+
+        if (out != null) out.hit = false;
 
         return new Vector3f(finalX, finalY, finalZ);
     }

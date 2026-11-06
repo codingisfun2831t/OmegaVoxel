@@ -37,6 +37,8 @@ import picocli.CommandLine.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.codingisfun2831t.omegavoxel.NBTUtils.ensureNBTValue;
+
 
 public class OmegaVoxel implements Runnable {
     private static Logger logger;
@@ -587,13 +589,6 @@ public class OmegaVoxel implements Runnable {
     public static void main(String[] args) {
         int exitCode = new CommandLine(new OmegaVoxel(800, 600)).execute(args);
         System.exit(exitCode);
-    }
-
-
-    public static void ensureNBTValue(CompoundTag tag, String key) {
-        if (!tag.containsKey(key)) {
-            throw new RuntimeException("Key \"" + key + "\" doesn't exist.");
-        }
     }
 
     public int getStatChunksRendered() {
