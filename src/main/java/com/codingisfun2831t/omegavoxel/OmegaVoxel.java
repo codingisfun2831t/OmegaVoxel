@@ -94,6 +94,7 @@ public class OmegaVoxel implements Runnable {
     private Player player;
     public Options options;
     private Path dataDir;
+    private boolean thirdPerson = false;
 
     @Option(names = {"--debug"})
     public boolean showDebugInfo = false;
@@ -427,6 +428,9 @@ public class OmegaVoxel implements Runnable {
                     case GLFW.GLFW_KEY_F3:
                         showDebugInfo = !showDebugInfo;
                         break;
+                    case GLFW.GLFW_KEY_F5:
+                        thirdPerson = !thirdPerson;
+                        break;
                 }
             }
         });
@@ -515,22 +519,31 @@ public class OmegaVoxel implements Runnable {
                 float y = player.yo + (player.y - player.yo) * t;
                 float z = player.zo + (player.z - player.zo) * t;
 
-                cam.position = new Vector3f(x, y, z);
+                cam.position = player.getInterpolatedPosition(t);
+                cam.position.y += player.eyeHeight;
                 cam.yaw = player.yaw;
                 cam.pitch = player.pitch;
+
+                Raycast.raycast(cam.position, cam.getDirection(), 5, level, hitResult);
+
+                if (thirdPerson) {
+                    cam.position = Raycast.raycast(cam.position, cam.getDirection().negate(), 5, level, null);
+                }
             }
 
             if (level != null) {
                 cam.applyProjection(width, height);
                 cam.applyViewMatrix();
 
-                Raycast.raycast(cam.position, cam.getDirection(), 5, level, hitResult);
-
                 GL11.glEnable(GL11.GL_DEPTH_TEST);
                 GL11.glEnable(GL11.GL_CULL_FACE);
                 GL11.glEnable(GL11.GL_ALPHA_TEST);
                 levelRenderer.render(cam);
                 levelRenderer.drawSelectionBox(hitResult);
+
+                if (thirdPerson) {
+                    player.render(r, moveTimer.getPartialTick());
+                }
 
                 r.flush();
             }

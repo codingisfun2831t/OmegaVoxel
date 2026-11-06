@@ -44,7 +44,8 @@ public class Setup {
     private static final String[] TO_EXTRACT = {
             "terrain.png",
             "font/default.png",
-            "gui/gui.png"
+            "gui/gui.png",
+            "mob/char.png"
     };
 
     private JDialog dialog;

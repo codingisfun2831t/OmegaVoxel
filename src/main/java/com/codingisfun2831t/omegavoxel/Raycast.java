@@ -6,8 +6,8 @@ import org.joml.Vector3f;
 public class Raycast {
     private Raycast() {}
 
-    public static void raycast(Vector3f origin, Vector3f direction, float maxDistance, Level level, HitResult out) {
-        out.hit = false;
+    public static Vector3f raycast(Vector3f origin, Vector3f direction, float maxDistance, Level level, HitResult out) {
+        if (out != null) out.hit = false;
 
         int mapX = (int) Math.floor(origin.x);
         int mapY = (int) Math.floor(origin.y);
@@ -68,19 +68,33 @@ public class Raycast {
             if (distanceTraveled > maxDistance) break;
 
             if (level.getBlockID(mapX, mapY, mapZ) != 0) {
-                out.hit = true;
-                out.blockPos.set(mapX, mapY, mapZ);
+                if (out != null) {
+                    out.hit = true;
+                    out.blockPos.set(mapX, mapY, mapZ);
 
-                if (lastSide == 0) {
-                    out.hitFace = stepX > 0 ? Face.LEFT : Face.RIGHT;
-                } else if (lastSide == 1) {
-                    out.hitFace = stepY > 0 ? Face.BOTTOM : Face.TOP;
-                } else {
-                    out.hitFace = stepZ > 0 ? Face.BACK : Face.FRONT;
+                    if (lastSide == 0) {
+                        out.hitFace = stepX > 0 ? Face.LEFT : Face.RIGHT;
+                    } else if (lastSide == 1) {
+                        out.hitFace = stepY > 0 ? Face.BOTTOM : Face.TOP;
+                    } else {
+                        out.hitFace = stepZ > 0 ? Face.BACK : Face.FRONT;
+                    }
                 }
 
-                return;
+                // Calculate exact high-precision float coordinates where ray hit the face
+                float hitX = origin.x + direction.x * distanceTraveled;
+                float hitY = origin.y + direction.y * distanceTraveled;
+                float hitZ = origin.z + direction.z * distanceTraveled;
+
+                return new Vector3f(hitX, hitY, hitZ);
             }
         }
+
+        float finalX = origin.x + direction.x * maxDistance;
+        float finalY = origin.y + direction.y * maxDistance;
+        float finalZ = origin.z + direction.z * maxDistance;
+
+        return new Vector3f(finalX, finalY, finalZ);
     }
+
 }

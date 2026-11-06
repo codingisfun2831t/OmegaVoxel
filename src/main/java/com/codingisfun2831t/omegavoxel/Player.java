@@ -1,9 +1,14 @@
 package com.codingisfun2831t.omegavoxel;
 
+import com.codingisfun2831t.omegavoxel.assets.Texture;
 import com.codingisfun2831t.omegavoxel.level.Block;
 import com.codingisfun2831t.omegavoxel.level.Level;
+import com.codingisfun2831t.omegavoxel.model.ModelHuman;
+import com.codingisfun2831t.omegavoxel.rendering.Renderer;
 import net.querz.nbt.tag.CompoundTag;
+import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GL11;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +34,8 @@ public class Player {
             Block.LOG, Block.PLANKS, Block.SAND, Block.GRAVEL, Block.BEDROCK
     };
     public int selectedSlot = 0;
+    private ModelHuman model = new ModelHuman();
+    private float walkTime;
 
     public void resetPos(Level level) {
         float x = (float)Math.random() * (float) level.getWidth();
@@ -39,13 +46,15 @@ public class Player {
         logger.info("Position reset to: XYZ {} / {} / {}", x, y, z);
     }
 
+    public static final float w = 0.6F;
+    public static final float h = 1.8F;
+    public static final float eyeHeight = 1.62f;
+
     public void setPos(float x, float y, float z) {
         this.x = x;
         this.y = y;
         this.z = z;
-        float w = 0.3F;
-        float h = 0.9F;
-        this.bb = new AABB(x - w, y - h, z - w, x + w, y + h, z + w);
+        this.bb = new AABB(x - w / 2, y, z - w / 2, x + w / 2, y + h, z + w / 2);
     }
 
     public void switchToBlock(Block b) {
@@ -125,6 +134,8 @@ public class Player {
             this.zd *= 0.8F;
         }
 
+        float speed = (float) Math.sqrt(xd * xd + zd * zd);
+        walkTime += speed * 2f;
     }
 
     public void move(Level level, float xa, float ya, float za) {
@@ -165,7 +176,7 @@ public class Player {
         }
 
         this.x = (this.bb.x0 + this.bb.x1) / 2.0F;
-        this.y = this.bb.y0 + 1.62F;
+        this.y = this.bb.y0;
         this.z = (this.bb.z0 + this.bb.z1) / 2.0F;
     }
 
@@ -202,5 +213,68 @@ public class Player {
         setPos(tag.getFloat("X"), tag.getFloat("Y"), tag.getFloat("Z"));
         yaw = tag.getFloat("Yaw");
         pitch = tag.getFloat("Pitch");
+    }
+
+    public Vector3f getInterpolatedPosition(float t) {
+        return new Vector3f(xo + (x - xo) * t, yo + (y - yo) * t, zo + (z - zo) * t);
+    }
+
+    public AABB getBox(Vector3f pos) {
+        return new AABB(pos.x - w / 2, pos.y, pos.z - w / 2, pos.x + w / 2, pos.y + h, pos.z + w / 2);
+    }
+
+    public void render(Renderer r, float t) {
+        r.bind((Texture) null);
+        r.c(255, 0, 0, 255);
+
+        float speed = (float) Math.sqrt(xd * xd + zd * zd);
+        float swing = (float) Math.sin(walkTime);
+
+        swing *= Math.min(speed * 16f, 2.0F);
+
+        model.yawRotation = yaw;
+        model.setSwing(swing);
+        model.setPitch(-pitch);
+        model.render(r, xo + (x - xo) * t, yo + (y - yo) * t, zo + (z - zo) * t);
+    }
+
+    private void renderCube(Renderer r, float x0, float y0, float z0, float x1, float y1, float z1, float u0, float v0, float u1, float v1) {
+        r.start(GL11.GL_QUADS);
+
+        // FRONT
+        r.vuv(x0, y0, z1, u0, v0);
+        r.vuv(x1, y0, z1, u1, v0);
+        r.vuv(x1, y1, z1, u1, v1);
+        r.vuv(x0, y1, z1, u0, v1);
+
+        // BACK
+        r.vuv(x1, y0, z0, u0, v0);
+        r.vuv(x0, y0, z0, u1, v0);
+        r.vuv(x0, y1, z0, u1, v1);
+        r.vuv(x1, y1, z0, u0, v1);
+
+        // TOP
+        r.vuv(x0, y1, z1, u0, v0);
+        r.vuv(x1, y1, z1, u1, v0);
+        r.vuv(x1, y1, z0, u1, v1);
+        r.vuv(x0, y1, z0, u0, v1);
+
+        // BOTTOM
+        r.vuv(x0, y0, z0, u0, v0);
+        r.vuv(x1, y0, z0, u1, v0);
+        r.vuv(x1, y0, z1, u1, v1);
+        r.vuv(x0, y0, z1, u0, v1);
+
+        // RIGHT
+        r.vuv(x1, y0, z1, u0, v0);
+        r.vuv(x1, y0, z0, u1, v0);
+        r.vuv(x1, y1, z0, u1, v1);
+        r.vuv(x1, y1, z1, u0, v1);
+
+        // LEFT
+        r.vuv(x0, y0, z0, u0, v0);
+        r.vuv(x0, y0, z1, u1, v0);
+        r.vuv(x0, y1, z1, u1, v1);
+        r.vuv(x0, y1, z0, u0, v1);
     }
 }
