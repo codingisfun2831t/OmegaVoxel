@@ -65,12 +65,10 @@ public class ModelPart {
         float y1 = y + h;
         float z1 = z + d / 2;
 
-        if (doRotation) {
-            GL11.glPushMatrix();
-            GL11.glTranslatef(pivotX, pivotY, pivotZ);
-            GL11.glRotatef(rotationPitch, 1.0F, 0.0f, 0.0f);
-            GL11.glTranslatef(-pivotX, -pivotY, -pivotZ);
-        }
+        GL11.glPushMatrix();
+        GL11.glTranslatef(pivotX, pivotY, pivotZ);
+        GL11.glRotatef(rotationPitch, 1.0F, 0.0f, 0.0f);
+        GL11.glTranslatef(-pivotX, -pivotY, -pivotZ);
 
         int tu0 = u + depth + width;
         int tu1 = u + depth;
