@@ -544,7 +544,7 @@ public class OmegaVoxel implements Runnable {
                 levelRenderer.drawSelectionBox(hitResult);
 
                 if (thirdPerson) {
-                    player.render(r, moveTimer.getPartialTick());
+                    player.render(r, moveTimer.getPartialTick(), unpaused());
                 }
 
                 r.flush();

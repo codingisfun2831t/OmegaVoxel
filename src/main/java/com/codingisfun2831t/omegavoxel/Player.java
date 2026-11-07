@@ -282,7 +282,7 @@ public class Player {
         return new AABB(pos.x - w / 2, pos.y, pos.z - w / 2, pos.x + w / 2, pos.y + h, pos.z + w / 2);
     }
 
-    public void render(Renderer r, float t) {
+    public void render(Renderer r, float t, boolean interpolated) {
         r.bind((Texture) null);
         r.c(255, 0, 0, 255);
 
@@ -294,7 +294,11 @@ public class Player {
         model.yawRotation = yaw;
         model.setSwing(swing);
         model.setPitch(-pitch);
-        model.render(r, xo + (x - xo) * t, yo + (y - yo) * t, zo + (z - zo) * t);
+
+        if (interpolated)
+            model.render(r, xo + (x - xo) * t, yo + (y - yo) * t, zo + (z - zo) * t);
+        else
+            model.render(r, x, y, z);
     }
 
     private void renderCube(Renderer r, float x0, float y0, float z0, float x1, float y1, float z1, float u0, float v0, float u1, float v1) {
