@@ -10,7 +10,7 @@ public class NBTUtils {
         }
     }
 
-    public static boolean isValueFloat(CompoundTag tag, String key) {
-        return tag.containsKey(key) && tag.get(key) instanceof FloatTag;
+    public static float getFloatDefault(CompoundTag tag, String key, float def) {
+        return (tag.containsKey(key) && tag.get(key) instanceof FloatTag) ? tag.getFloat(key) : def;
     }
 }

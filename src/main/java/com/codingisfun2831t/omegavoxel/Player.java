@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import static com.codingisfun2831t.omegavoxel.NBTUtils.ensureNBTValue;
-import static com.codingisfun2831t.omegavoxel.NBTUtils.isValueFloat;
+import static com.codingisfun2831t.omegavoxel.NBTUtils.getFloatDefault;
 
 /**
  * Represents the player, with all the info.
@@ -252,6 +252,9 @@ public class Player {
         nbt.putFloat("Z", z);
         nbt.putFloat("Yaw", yaw);
         nbt.putFloat("Pitch", pitch);
+        nbt.putFloat("MotionX", xd);
+        nbt.putFloat("MotionY", yd);
+        nbt.putFloat("MotionZ", zd);
         return nbt;
     }
 
@@ -265,6 +268,10 @@ public class Player {
         setPos(tag.getFloat("X"), tag.getFloat("Y"), tag.getFloat("Z"));
         yaw = tag.getFloat("Yaw");
         pitch = tag.getFloat("Pitch");
+
+        xd = getFloatDefault(tag, "MotionX", 0);
+        yd = getFloatDefault(tag, "MotionY", 0);
+        zd = getFloatDefault(tag, "MotionZ", 0);
     }
 
     public Vector3f getInterpolatedPosition(float t) {
