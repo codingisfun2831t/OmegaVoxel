@@ -1,8 +1,9 @@
 package com.codingisfun2831t.omegavoxel;
 
 import com.codingisfun2831t.omegavoxel.assets.Assets;
-import com.codingisfun2831t.omegavoxel.assets.Setup;
+import com.codingisfun2831t.omegavoxel.assets.setup.Setup;
 import com.codingisfun2831t.omegavoxel.assets.Textures;
+import com.codingisfun2831t.omegavoxel.level.Block;
 import com.codingisfun2831t.omegavoxel.level.Level;
 import com.codingisfun2831t.omegavoxel.options.Options;
 import com.codingisfun2831t.omegavoxel.rendering.*;
@@ -16,7 +17,6 @@ import com.codingisfun2831t.omegavoxel.ui.screens.PauseMenu;
 import net.querz.nbt.io.NBTUtil;
 import net.querz.nbt.io.NamedTag;
 import net.querz.nbt.tag.CompoundTag;
-import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
@@ -347,6 +347,12 @@ public class OmegaVoxel implements Runnable {
         this.uiRenderer = new UIRenderer(r, text);
         this.levelRenderer = new LevelRenderer(r, options);
         this.player = new Player();
+
+        try {
+            Block.generateAtlas(textures, assets);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         logger.info("Setting up UI...");
         this.hud.game = this;

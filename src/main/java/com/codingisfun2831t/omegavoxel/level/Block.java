@@ -2,9 +2,13 @@ package com.codingisfun2831t.omegavoxel.level;
 
 import com.codingisfun2831t.omegavoxel.Face;
 import com.codingisfun2831t.omegavoxel.Translations;
+import com.codingisfun2831t.omegavoxel.assets.Assets;
+import com.codingisfun2831t.omegavoxel.assets.Textures;
 import com.codingisfun2831t.omegavoxel.rendering.Renderer;
 import com.codingisfun2831t.omegavoxel.ui.Color;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,11 +19,14 @@ import java.util.List;
  */
 public class Block {
     protected byte id;
-    protected byte[] tex;
+    protected int[] tex;
+    protected String[] stex;
     protected boolean hideInInventory = false;
     protected RenderPass renderPass = RenderPass.NORMAL;
 
     private String stringId = null;
+
+    private static Textures.Atlas textureAtlas = new Textures.Atlas("block", 16);
 
     /**
      * List of all blocks.
@@ -28,34 +35,35 @@ public class Block {
 
     private static final List<Block> blocksInInventory = new ArrayList<>();
 
-    public static final Block STONE = new Block().texture(1).register(1, "stone");
-    public static final Block GRASS = new BlockGrass().texture(0, 3, 2).register(2, "grass");
-    public static final Block DIRT = new Block().texture(2).register(3, "dirt");
-    public static final Block COBBLESTONE = new Block().texture(16).register(4, "cobblestone");
-    public static final Block LOG = new Block().texture(21, 20, 21).register(17, "log");
-    public static final Block PLANKS = new Block().texture(4).register(5, "planks");
-    public static final Block SAND = new Block().texture(18).register(12, "sand");
-    public static final Block GRAVEL = new Block().texture(19).register(13, "gravel");
-    public static final Block BEDROCK = new Block().texture(17).register(7, "bedrock");
-    public static final Block GLASS = new BlockGlass().texture(49).register(20, "glass");
+    public static final Block STONE = new Block().texture("stone").register(1, "stone");
+    public static final Block GRASS = new BlockGrass().texture("grass_top", "grass_side", "dirt").register(2, "grass");
+    public static final Block DIRT = new Block().texture("dirt").register(3, "dirt");
+    public static final Block COBBLESTONE = new Block().texture("cobblestone").register(4, "cobblestone");
+    public static final Block LOG = new Block().texture("log_top", "log_side", "log_top").register(17, "log");
+    public static final Block PLANKS = new Block().texture("planks").register(5, "planks");
+    public static final Block SAND = new Block().texture("sand").register(12, "sand");
+    public static final Block GRAVEL = new Block().texture("gravel").register(13, "gravel");
+    public static final Block BEDROCK = new Block().texture("bedrock").register(7, "bedrock");
+    public static final Block GLASS = new BlockGlass().texture("glass").register(20, "glass");
 
     public Block() {
         this.id = 0;
-        tex = new byte[6];
+        tex = new int[6];
+        stex = new String[6];
     }
 
     /**
-     * Use a single texture index for all sides.
+     * Use a single texture for all sides.
      */
-    public Block texture(int all) {
-        Arrays.fill(tex, (byte)all);
+    public Block texture(String all) {
+        Arrays.fill(stex, all);
         return this;
     }
 
-    public Block texture(int top, int side, int bottom) {
+    public Block texture(String top, String side, String bottom) {
         texture(side);
-        tex[Face.TOP.ordinal()] = (byte)top;
-        tex[Face.BOTTOM.ordinal()] = (byte)bottom;
+        stex[Face.TOP.ordinal()] = top;
+        stex[Face.BOTTOM.ordinal()] = bottom;
 
         return this;
     }
@@ -73,6 +81,9 @@ public class Block {
     }
 
 
+    public static void generateAtlas(Textures tex, Assets assets) throws IOException {
+        textureAtlas.generate(tex, assets);
+    }
 
     /**
      * Register this block to an ID.
@@ -83,6 +94,11 @@ public class Block {
         blocks[id] = this;
 
         if (!hideInInventory) blocksInInventory.add(this);
+
+        for (int i = 0; i < 6; i++) {
+            tex[i] = textureAtlas.put(stex[i]);
+        }
+        stex = null;
 
         return this;
     }
@@ -100,10 +116,10 @@ public class Block {
     }
 
     /**
-     * Get all textures for this block.
+     * Get all texture indexes for this block.
      * @return
      */
-    public byte[] getTex() {
+    public int[] getTex() {
         return tex;
     }
 
@@ -115,9 +131,9 @@ public class Block {
     private static final float ZBRIGHT = 0.8f;
     private static final float XBRIGHT = 0.6f;
 
-    protected void renderFace(Renderer r, float x0, float y0, float z0, float x1, float y1, float z1, byte tex, Face face, float b) {
-        int u0 = (tex % 16) * 16;
-        int v1 = (tex / 16) * 16;
+    protected void renderFace(Renderer r, float x0, float y0, float z0, float x1, float y1, float z1, int tex, Face face, float b) {
+        int u0 = (tex % textureAtlas.getAtlasSize()) * 16;
+        int v1 = (tex / textureAtlas.getAtlasSize()) * 16;
         int u1 = u0 + 16;
         int v0 = v1 + 16;
 
@@ -170,7 +186,7 @@ public class Block {
         }
     }
 
-    protected void renderCulledFace(Level l, Renderer r, float x0, float y0, float z0, float x1, float y1, float z1, byte tex, Face face) {
+    protected void renderCulledFace(Level l, Renderer r, float x0, float y0, float z0, float x1, float y1, float z1, int tex, Face face) {
         float b = 1.0F;
         if (l != null) {
             int fx = face.getX((int)x0);
@@ -195,7 +211,7 @@ public class Block {
      * @param z Z position.
      */
     public void render(Level l, Renderer r, int x, int y, int z) {
-        r.bind("terrain.png");
+        r.bind(textureAtlas.getAtlas());
         float x0 = x;
         float y0 = y;
         float z0 = z;

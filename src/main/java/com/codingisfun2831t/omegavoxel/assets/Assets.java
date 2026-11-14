@@ -66,4 +66,8 @@ public class Assets {
             throw new RuntimeException("Failed to load asset: " + resourcePath, e);
         }
     }
+
+    public Path getAssetsDir() {
+        return assets;
+    }
 }
