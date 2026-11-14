@@ -12,7 +12,7 @@
 
         <RollingFile name="FileAppender"
                      fileName="${GameDataFolder}/logs/latest.log"
-                     filePattern="${GameDataFolder}/logs/archived/app-%d{yyyy-MM-dd}.log.gz">
+                     filePattern="${GameDataFolder}/logs/archived/app-%d{yyyy-MM-dd_HH-mm-ss-SSS}.log.gz">
             <PatternLayout pattern="${LogPattern}"/>
             <Policies>
                 <OnStartupTriggeringPolicy />
