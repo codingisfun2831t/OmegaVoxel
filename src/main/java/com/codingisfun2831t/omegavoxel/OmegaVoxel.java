@@ -3,6 +3,10 @@ package com.codingisfun2831t.omegavoxel;
 import com.codingisfun2831t.omegavoxel.assets.Assets;
 import com.codingisfun2831t.omegavoxel.assets.setup.Setup;
 import com.codingisfun2831t.omegavoxel.assets.Textures;
+import com.codingisfun2831t.omegavoxel.entity.Entity;
+import com.codingisfun2831t.omegavoxel.entity.EntityPlayer;
+import com.codingisfun2831t.omegavoxel.entity.EntityRegistry;
+import com.codingisfun2831t.omegavoxel.entity.EntitySteve;
 import com.codingisfun2831t.omegavoxel.level.Block;
 import com.codingisfun2831t.omegavoxel.level.Level;
 import com.codingisfun2831t.omegavoxel.options.Options;
@@ -17,6 +21,8 @@ import com.codingisfun2831t.omegavoxel.ui.screens.PauseMenu;
 import net.querz.nbt.io.NBTUtil;
 import net.querz.nbt.io.NamedTag;
 import net.querz.nbt.tag.CompoundTag;
+import net.querz.nbt.tag.ListTag;
+import net.querz.nbt.tag.StringTag;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
@@ -24,6 +30,8 @@ import org.lwjgl.opengl.GL11;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -76,6 +84,7 @@ public class OmegaVoxel implements Runnable {
     private float mouseY;
     private Camera cam;
     private Timer moveTimer;
+    private Timer tickTimer;
     private float deltaX = 0.0f;
     private float deltaY = 0.0f;
     private double lastX = 0.0f;
@@ -93,7 +102,7 @@ public class OmegaVoxel implements Runnable {
     private HUD hud = new HUD();
     private Screen currentScreen = null;
     private UIRenderer uiRenderer;
-    private Player player;
+    private EntityPlayer player;
     public Options options;
     private Path dataDir;
     private boolean thirdPerson = false;
@@ -114,7 +123,7 @@ public class OmegaVoxel implements Runnable {
         return level;
     }
 
-    public Player getPlayer() {
+    public EntityPlayer getPlayer() {
         return player;
     }
 
@@ -237,6 +246,8 @@ public class OmegaVoxel implements Runnable {
         navigateTo(screen, true);
     }
 
+
+    
     private boolean unpaused() {
         if (level == null) return false;
 
@@ -260,8 +271,21 @@ public class OmegaVoxel implements Runnable {
             save.putInt("Depth", level.getDepth());
 
             save.putByteArray("Blocks", level.getBlocks());
+
+            ListTag<CompoundTag> entities = ListTag.createUnchecked(CompoundTag.class).asCompoundTagList();
+
+            for (Entity ent : level.getEntityList()) {
+                if (ent.getId().equals(EntityRegistry.getIdFromClass(EntityPlayer.class))) continue;
+
+                CompoundTag tag = ent.getNBT();
+                tag.putString("ID", ent.getId());
+                entities.add(tag);
+            }
+
+            save.put("Entities", entities);
+
             NBTUtil.write(save, levelDat);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -293,15 +317,70 @@ public class OmegaVoxel implements Runnable {
 
                 this.level = new Level(root.getInt("Width"),
                         root.getInt("Height"), root.getInt("Depth"), root.getByteArray("Blocks"));
+
+                int entityCount = 0;
+                if (root.containsKey("Entities") && root.get("Entities") instanceof ListTag<?> l) {
+                    ListTag<CompoundTag> entities = l.asTypedList(CompoundTag.class);
+
+                    for (int i = 0; i < entities.size(); i++) {
+                        CompoundTag tag = entities.get(i);
+                        if (tag == null) {
+                            continue;
+                        }
+
+                        if (!(tag.containsKey("ID") && tag.get("ID") instanceof StringTag idTag)) {
+                            logger.error("Entity index {} doesn't have a ID, skipping", i);
+                            continue;
+                        }
+
+                        String id = idTag.getValue();
+                        Class<? extends Entity> clazz = EntityRegistry.getClassFromId(id);
+                        if (clazz == null) {
+                            logger.error("Entity index {} has invalid id: {}", i, id);
+                            continue;
+                        }
+
+                        Constructor<? extends Entity> constructor;
+                        try {
+                            constructor = clazz.getDeclaredConstructor(Level.class);
+                        } catch (NoSuchMethodException e) {
+                            logger.error("Entity index {} (id {}, class {}) doesn't have one-arg Level constructor, skipping", i, id, clazz.getSimpleName());
+                            continue;
+                        }
+
+                        Entity ent;
+                        try {
+                            ent = constructor.newInstance(level);
+                        } catch (InstantiationException e) {
+                            logger.error("Abstract class entity!", e);
+                            continue;
+                        } catch (IllegalAccessException e) {
+                            logger.error("IllegalAccessException on entity, why?", e);
+                            continue;
+                        } catch (InvocationTargetException e) {
+                            logger.error("Entity constructor threw exception!", e);
+                            continue;
+                        }
+
+                        ent.loadFromNBT(tag);
+                        level.spawnEntity(ent);
+                        entityCount++;
+                    }
+                }
+
+                this.player = new EntityPlayer(level);
                 this.player.loadFromNBT(playerTag);
-                logger.info("Level loaded!");
+                this.level.spawnEntity(player);
+                logger.info("Level loaded! {} entities", entityCount);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         } else {
             logger.info("level.dat is non-existant, creating new level");
             this.level = new Level(128, 128, 128);
-            this.player.resetPos(level);
+            this.player = new EntityPlayer(level);
+            this.level.spawnEntity(player);
+            this.player.resetPos();
 
             saveLevel();
         }
@@ -340,13 +419,13 @@ public class OmegaVoxel implements Runnable {
         this.r = Renderer.getInstance();
         this.cam = new Camera(options);
         this.moveTimer = new Timer(60);
+        this.tickTimer = new Timer(20);
         this.assets = new Assets(dataDir);
         this.textures = new Textures(assets);
         this.r.useTextures(textures);
         this.text = new FontRenderer(r, textures);
         this.uiRenderer = new UIRenderer(r, text);
         this.levelRenderer = new LevelRenderer(r, options);
-        this.player = new Player();
 
         try {
             Block.generateAtlas(textures, assets);
@@ -398,7 +477,7 @@ public class OmegaVoxel implements Runnable {
             }
 
             if (unpaused()) {
-                player.turn(deltaX, deltaY);
+                player.turnMouse(deltaX, deltaY);
             }
         });
 
@@ -415,7 +494,12 @@ public class OmegaVoxel implements Runnable {
                         }
 
                         break;
-                    case GLFW.GLFW_KEY_R: player.resetPos(level);  break;
+                    case GLFW.GLFW_KEY_R: player.resetPos();  break;
+                    case GLFW.GLFW_KEY_G:
+                        EntitySteve steve = new EntitySteve(level);
+                        steve.setPos(player.x, player.y + 5.0F, player.z);
+                        level.spawnEntity(steve);
+                        break;
                     case GLFW.GLFW_KEY_1: player.selectedSlot = 0; break;
                     case GLFW.GLFW_KEY_2: player.selectedSlot = 1; break;
                     case GLFW.GLFW_KEY_3: player.selectedSlot = 2; break;
@@ -516,7 +600,15 @@ public class OmegaVoxel implements Runnable {
             int ticks = moveTimer.update();
             for (int i = 0; i < ticks; i++) {
                 if (unpaused()) {
-                    player.tick(level, window);
+                    player.input(window);
+                    level.tickMotion();
+                }
+            }
+
+            ticks = tickTimer.update();
+            for (int i = 0; i < ticks; i++) {
+                if (unpaused()) {
+                    level.tick();
                 }
             }
 
@@ -546,12 +638,8 @@ public class OmegaVoxel implements Runnable {
                 GL11.glEnable(GL11.GL_DEPTH_TEST);
                 GL11.glEnable(GL11.GL_CULL_FACE);
                 GL11.glEnable(GL11.GL_ALPHA_TEST);
-                levelRenderer.render(cam);
+                levelRenderer.render(cam, moveTimer.getPartialTick(), unpaused(), thirdPerson, showDebugInfo);
                 levelRenderer.drawSelectionBox(hitResult);
-
-                if (thirdPerson) {
-                    player.render(r, moveTimer.getPartialTick(), unpaused());
-                }
 
                 r.flush();
             }

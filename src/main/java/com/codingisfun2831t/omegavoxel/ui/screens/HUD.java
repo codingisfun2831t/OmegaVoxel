@@ -1,6 +1,6 @@
 package com.codingisfun2831t.omegavoxel.ui.screens;
 
-import com.codingisfun2831t.omegavoxel.Player;
+import com.codingisfun2831t.omegavoxel.entity.EntityPlayer;
 import com.codingisfun2831t.omegavoxel.ui.LayoutContext;
 import com.codingisfun2831t.omegavoxel.ui.Screen;
 import com.codingisfun2831t.omegavoxel.ui.UIRenderer;
@@ -41,7 +41,7 @@ public class HUD extends Screen {
         debug.text = text;
     }
 
-    public void setPlayer(Player plr) {
+    public void setPlayer(EntityPlayer plr) {
         hotbar.setPlayer(plr);
     }
 

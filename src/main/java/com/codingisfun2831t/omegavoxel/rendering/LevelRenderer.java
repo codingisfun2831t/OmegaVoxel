@@ -1,6 +1,8 @@
 package com.codingisfun2831t.omegavoxel.rendering;
 
 import com.codingisfun2831t.omegavoxel.Camera;
+import com.codingisfun2831t.omegavoxel.entity.Entity;
+import com.codingisfun2831t.omegavoxel.entity.EntityPlayer;
 import com.codingisfun2831t.omegavoxel.HitResult;
 import com.codingisfun2831t.omegavoxel.assets.Texture;
 import com.codingisfun2831t.omegavoxel.level.Level;
@@ -11,7 +13,6 @@ import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -76,7 +77,7 @@ public class LevelRenderer implements LevelListener {
     }
 
     private int vertexCount;
-    public void render(Camera c) {
+    public void render(Camera c, float t, boolean unpaused, boolean renderPlayer, boolean debug) {
         if (lvl == null) return;
 
         renderChunks.clear();
@@ -131,6 +132,13 @@ public class LevelRenderer implements LevelListener {
         statChunksBuilt = 0;
         for (Chunk chunk : chunks) {
             if (chunk.isBuilt()) statChunksBuilt++;
+        }
+
+        for (Entity ent : lvl.getEntityList()) {
+            if (ent instanceof EntityPlayer && !renderPlayer) continue;
+            ent.render(r, t, unpaused);
+
+            if (debug) drawHitbox(ent, t, unpaused);
         }
     }
 
@@ -189,6 +197,93 @@ public class LevelRenderer implements LevelListener {
 
         r.v(x0, y1, z0);
         r.v(x0, y1, z1);
+
+        r.flush();
+
+        GL11.glDepthMask(true);
+    }
+
+    public void drawHitbox(Entity ent, float t, boolean unpaused) {
+        float e = 0.002f;
+
+        float x, y, z;
+
+        if (unpaused) {
+            Vector3f pos = ent.getInterpolatedPosition(t);
+            x = pos.x;
+            y = pos.y;
+            z = pos.z;
+        } else {
+            x = ent.x;
+            y = ent.y;
+            z = ent.z;
+        }
+
+        float x0 = x - (ent.w / 2) - e;
+        float y0 = y - e;
+        float z0 = z - (ent.w / 2) - e;
+        float x1 = x + (ent.w / 2) + e;
+        float y1 = y - e + ent.h;
+        float z1 = z + (ent.w / 2) + e;
+
+        r.bind((Texture) null);
+        r.c(255, 255, 255);
+
+        GL11.glDepthMask(false);
+        GL11.glLineWidth(2.0f);
+
+        r.start(GL11.GL_LINES);
+
+        r.v(x0, y0, z0);
+        r.v(x1, y0, z0);
+
+        r.v(x1, y0, z0);
+        r.v(x1, y1, z0);
+
+        r.v(x1, y1, z0);
+        r.v(x0, y1, z0);
+
+        r.v(x0, y1, z0);
+        r.v(x0, y0, z0);
+
+        r.v(x0, y0, z1);
+        r.v(x1, y0, z1);
+
+        r.v(x1, y0, z1);
+        r.v(x1, y1, z1);
+
+        r.v(x1, y1, z1);
+        r.v(x0, y1, z1);
+
+        r.v(x0, y1, z1);
+        r.v(x0, y0, z1);
+
+        r.v(x0, y0, z0);
+        r.v(x0, y0, z1);
+
+        r.v(x1, y0, z0);
+        r.v(x1, y0, z1);
+
+        r.v(x1, y1, z0);
+        r.v(x1, y1, z1);
+
+        r.v(x0, y1, z0);
+        r.v(x0, y1, z1);
+
+        r.c(255, 0, 0);
+
+        float eye = y0 + ent.eyeHeight;
+        r.v(x0, eye, z0);
+        r.v(x1, eye, z0);
+
+        r.v(x1, eye, z0);
+        r.v(x1, eye, z1);
+
+        r.v(x1, eye, z1);
+        r.v(x0, eye, z1);
+
+        r.v(x0, eye, z1);
+        r.v(x0, eye, z0);
 
         r.flush();
 

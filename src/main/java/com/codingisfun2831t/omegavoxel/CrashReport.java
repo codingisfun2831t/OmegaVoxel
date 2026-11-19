@@ -1,5 +1,6 @@
 package com.codingisfun2831t.omegavoxel;
 
+import com.codingisfun2831t.omegavoxel.entity.EntityPlayer;
 import com.codingisfun2831t.omegavoxel.level.Level;
 import com.codingisfun2831t.omegavoxel.ui.Screen;
 import org.lwjgl.Version;
@@ -44,7 +45,7 @@ public final class CrashReport {
         if (lvl == null) {
             appendLine(sb, "Not in game");
         } else {
-            Player plr = g.getPlayer();
+            EntityPlayer plr = g.getPlayer();
             appendLine(sb, "World of size " + lvl.getWidth() +
                     "x" + lvl.getHeight() + "x" + lvl.getDepth());
             appendLine(sb, "XYZ: " + plr.x + " / " + plr.y + " / " + plr.z);

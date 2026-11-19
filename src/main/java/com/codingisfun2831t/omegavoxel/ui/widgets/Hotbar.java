@@ -1,6 +1,6 @@
 package com.codingisfun2831t.omegavoxel.ui.widgets;
 
-import com.codingisfun2831t.omegavoxel.Player;
+import com.codingisfun2831t.omegavoxel.entity.EntityPlayer;
 import com.codingisfun2831t.omegavoxel.ui.Rectangle;
 import com.codingisfun2831t.omegavoxel.ui.UIRenderer;
 import com.codingisfun2831t.omegavoxel.ui.Widget;
@@ -11,7 +11,7 @@ public class Hotbar extends Widget {
     private static final int SLOT_SIZE = 16;
     private static final int SLOT_SPACING = 20;
 
-    private Player plr = null;
+    private EntityPlayer plr = null;
 
     public Hotbar() {
         super();
@@ -47,7 +47,7 @@ public class Hotbar extends Widget {
         }
     }
 
-    public void setPlayer(Player plr) {
+    public void setPlayer(EntityPlayer plr) {
         this.plr = plr;
     }
 }

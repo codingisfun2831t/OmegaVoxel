@@ -1,9 +1,8 @@
 package com.codingisfun2831t.omegavoxel.ui.screens;
 
 import com.codingisfun2831t.omegavoxel.OmegaVoxel;
-import com.codingisfun2831t.omegavoxel.Player;
+import com.codingisfun2831t.omegavoxel.entity.EntityPlayer;
 import com.codingisfun2831t.omegavoxel.Translations;
-import com.codingisfun2831t.omegavoxel.rendering.Renderer;
 import com.codingisfun2831t.omegavoxel.ui.UIRenderer;
 
 class DebugInfoRenderer {
@@ -34,7 +33,7 @@ class DebugInfoRenderer {
     public void render(OmegaVoxel game) {
         debugY = 12;
 
-        Player plr = game.getPlayer();
+        EntityPlayer plr = game.getPlayer();
 
         sep();
         leftString(Translations.get("debug.xyz"), plr.x, plr.y, plr.z);

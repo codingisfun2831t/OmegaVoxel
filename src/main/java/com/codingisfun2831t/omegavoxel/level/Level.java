@@ -1,9 +1,12 @@
 package com.codingisfun2831t.omegavoxel.level;
 
 import com.codingisfun2831t.omegavoxel.AABB;
+import com.codingisfun2831t.omegavoxel.entity.Entity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class Level {
     private int width;
@@ -12,6 +15,7 @@ public class Level {
     private byte[] blocks;
     private int[] lightDepths;
 
+    private List<Entity> entityList = new ArrayList<>();
 
     private ArrayList<LevelListener> listeners = new ArrayList<>();
 
@@ -195,5 +199,34 @@ public class Level {
 
     public byte[] getBlocks() {
         return blocks;
+    }
+
+    public void spawnEntity(Entity ent) {
+        entityList.add(ent);
+    }
+    public void removeEntity(Entity ent) {
+        entityList.remove(ent);
+    }
+
+    public List<Entity> getEntityList() {
+        return Collections.unmodifiableList(entityList);
+    }
+
+    public void tickMotion() {
+        for (Entity ent : entityList) {
+            ent.tickMotion();
+        }
+    }
+
+    public void tick() {
+        List<Entity> del = new ArrayList<>();
+        for (Entity ent : entityList) {
+            if (ent.deleted) del.add(ent);
+            else ent.tick();
+        }
+
+        for (Entity delete : del) {
+            entityList.remove(delete);
+        }
     }
 }
