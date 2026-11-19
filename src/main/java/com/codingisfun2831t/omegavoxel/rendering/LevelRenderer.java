@@ -1,10 +1,10 @@
 package com.codingisfun2831t.omegavoxel.rendering;
 
 import com.codingisfun2831t.omegavoxel.Camera;
-import com.codingisfun2831t.omegavoxel.entity.Entity;
-import com.codingisfun2831t.omegavoxel.entity.EntityPlayer;
 import com.codingisfun2831t.omegavoxel.HitResult;
 import com.codingisfun2831t.omegavoxel.assets.Texture;
+import com.codingisfun2831t.omegavoxel.entity.Entity;
+import com.codingisfun2831t.omegavoxel.entity.EntityPlayer;
 import com.codingisfun2831t.omegavoxel.level.Level;
 import com.codingisfun2831t.omegavoxel.level.LevelListener;
 import com.codingisfun2831t.omegavoxel.level.RenderPass;

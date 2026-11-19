@@ -8,7 +8,6 @@ import com.codingisfun2831t.omegavoxel.rendering.Renderer;
 import com.codingisfun2831t.omegavoxel.ui.Color;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

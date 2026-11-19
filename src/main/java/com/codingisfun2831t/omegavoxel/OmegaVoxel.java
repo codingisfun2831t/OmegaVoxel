@@ -1,8 +1,8 @@
 package com.codingisfun2831t.omegavoxel;
 
 import com.codingisfun2831t.omegavoxel.assets.Assets;
-import com.codingisfun2831t.omegavoxel.assets.setup.Setup;
 import com.codingisfun2831t.omegavoxel.assets.Textures;
+import com.codingisfun2831t.omegavoxel.assets.setup.Setup;
 import com.codingisfun2831t.omegavoxel.entity.Entity;
 import com.codingisfun2831t.omegavoxel.entity.EntityPlayer;
 import com.codingisfun2831t.omegavoxel.entity.EntityRegistry;
@@ -26,6 +26,10 @@ import net.querz.nbt.tag.StringTag;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import picocli.CommandLine;
+import picocli.CommandLine.Option;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,22 +41,26 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-import picocli.CommandLine;
-import picocli.CommandLine.Option;
-
-
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import static com.codingisfun2831t.omegavoxel.NBTUtils.ensureNBTValue;
 
-
+/**
+ * OmegaVoxel main class
+ */
 public class OmegaVoxel implements Runnable {
+    //region Static members
     private static Logger logger;
+
+    /**
+     * Version (e.g. C0.2.0), "Unknown" if dev build or otherwise.
+     */
     public static String VERSION;
+
+    /**
+     * Title: "OmegaVoxel" with version
+     */
     public static final String TITLE;
 
+    // Get version
     static {
         VERSION = "Unknown";
 
@@ -75,49 +83,65 @@ public class OmegaVoxel implements Runnable {
 
         TITLE = "OmegaVoxel " + VERSION;
     }
+    //endregion
+    //region Variables
 
+    // window info
     private long window;
     private int width;
     private int height;
-    private Renderer r;
+
+    // mouse
     private float mouseX;
     private float mouseY;
-    private Camera cam;
-    private Timer moveTimer;
-    private Timer tickTimer;
     private float deltaX = 0.0f;
     private float deltaY = 0.0f;
     private double lastX = 0.0f;
     private double lastY = 0.0f;
     private boolean firstMouse = true;
-    private Assets assets;
-    private Textures textures;
-    private Level level;
+
+    // Rendering
+    private Renderer r;
+    private Camera cam;
     private LevelRenderer levelRenderer;
-    private int frames;
-    private long _lastTime = System.currentTimeMillis();
     private FontRenderer text;
     private ScaledResolution res;
+
+    // Timers
+    private Timer moveTimer;
+    private Timer tickTimer;
+
+    // Assets
+    private Assets assets;
+    private Textures textures;
+    private int frames;
+    private long _lastTime = System.currentTimeMillis();
     private HitResult hitResult = new HitResult();
+
+    // UI
     private HUD hud = new HUD();
     private Screen currentScreen = null;
     private UIRenderer uiRenderer;
+
+    // World
+    private Level level;
     private EntityPlayer player;
+    private boolean thirdPerson = false;
+
+    // Options
     public Options options;
     private Path dataDir;
-    private boolean thirdPerson = false;
 
     @Option(names = {"--debug"})
     public boolean showDebugInfo = false;
 
-    private long startStartupTime = 0;
-
-    public Path getDataDir() {
-        return dataDir;
-    }
-
     @Option(names = {"-d", "--dataDir"})
     String dataDirOption = "";
+
+    private long startStartupTime = 0;
+
+    //endregion
+    //region Accessors
 
     public Level getLevel() {
         return level;
@@ -135,14 +159,14 @@ public class OmegaVoxel implements Runnable {
         return currentScreen;
     }
 
+    public Path getDataDir() {
+        return dataDir;
+    }
+    //endregion
+    //region Lifecycle
     public OmegaVoxel(int width, int height) {
         this.width = width;
         this.height = height;
-    }
-
-    private void updateUiRes() {
-        res = new ScaledResolution(width, height, 2);
-        resizeScreen(hud);
     }
 
     public static Path getDataDirectory(String appName) {
@@ -174,6 +198,7 @@ public class OmegaVoxel implements Runnable {
         );
     }
 
+    // Main game running
     public void run() {
         startStartupTime = System.nanoTime();
 
@@ -215,6 +240,23 @@ public class OmegaVoxel implements Runnable {
 
     }
 
+    private boolean unpaused() {
+        if (level == null) return false;
+
+        return currentScreen == null || !currentScreen.pausesGame();
+    }
+
+    public void close() {
+        GLFW.glfwSetWindowShouldClose(window, true);
+    }
+
+    //endregion
+    //region UI
+    private void updateUiRes() {
+        res = new ScaledResolution(width, height, 2);
+        resizeScreen(hud);
+    }
+
     private void resizeScreen(Screen screen) {
         screen.getRoot().setBounds(res.getRectangle());
 
@@ -245,15 +287,8 @@ public class OmegaVoxel implements Runnable {
     public void navigateTo(Screen screen) {
         navigateTo(screen, true);
     }
-
-
-    
-    private boolean unpaused() {
-        if (level == null) return false;
-
-        return currentScreen == null || !currentScreen.pausesGame();
-    }
-
+    //endregion
+    //region Level
     private File levelDat;
 
     public void saveLevel() {
@@ -290,10 +325,6 @@ public class OmegaVoxel implements Runnable {
         }
 
         logger.info("Level saved successfully");
-    }
-
-    public void close() {
-        GLFW.glfwSetWindowShouldClose(window, true);
     }
 
     public void play() {
@@ -397,18 +428,22 @@ public class OmegaVoxel implements Runnable {
         this.hud.setPlayer(null);
         System.gc();
     }
-
+    //endregion
+    //region Game Loop
     private void mainLoop() {
         logger.info("Setting up core systems...");
 
-        GLFW.glfwInit();
 
+        // Setup window
+        GLFW.glfwInit();
         GLFW.glfwWindowHint(GLFW.GLFW_DEPTH_BITS, 24);
         window = GLFW.glfwCreateWindow(width, height, TITLE, 0, 0);
 
+        // Setup GL
         GLFW.glfwMakeContextCurrent(window);
         GL.createCapabilities();
 
+        // Load options
         this.options = new Options(dataDir);
         try {
             this.options.load();
@@ -416,6 +451,7 @@ public class OmegaVoxel implements Runnable {
             throw new RuntimeException(e);
         }
 
+        // Create/get other classes
         this.r = Renderer.getInstance();
         this.cam = new Camera(options);
         this.moveTimer = new Timer(60);
@@ -427,12 +463,14 @@ public class OmegaVoxel implements Runnable {
         this.uiRenderer = new UIRenderer(r, text);
         this.levelRenderer = new LevelRenderer(r, options);
 
+        // Atlases
         try {
             Block.generateAtlas(textures, assets);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
+        // UI
         logger.info("Setting up UI...");
         this.hud.game = this;
         this.hud.init();
@@ -440,140 +478,20 @@ public class OmegaVoxel implements Runnable {
         updateUiRes();
         this.navigateTo(new MainMenuScreen());
 
+
         logger.info("Setting up display...");
-
-        GLFW.glfwSetFramebufferSizeCallback(window, (window, width, height) -> {
-            this.width = width;
-            this.height = height;
-
-            GL11.glViewport(0, 0, width, height);
-            updateUiRes();
-
-            resizeScreen(hud);
-            if (currentScreen != null) resizeScreen(currentScreen);
-        });
 
         mouseX = 0;
         mouseY = 0;
 
-        GLFW.glfwSetCursorPosCallback(window, (window, x, y) -> {
-            if (firstMouse) {
-                lastX = x;
-                lastY = y;
-                firstMouse = false;
-            }
+        // events
+        GLFW.glfwSetFramebufferSizeCallback(window, this::onWindowResize);
+        GLFW.glfwSetCursorPosCallback(window, this::cursorMove);
+        GLFW.glfwSetKeyCallback(window, this::keyEvent);
+        GLFW.glfwSetScrollCallback(window,this::scroll);
+        GLFW.glfwSetMouseButtonCallback(window, this::mouseClick);
 
-            deltaX = (float) (x - lastX);
-            deltaY = (float) (lastY - y);
-
-            lastX = x;
-            lastY = y;
-
-            mouseX = (float) x / res.scale;
-            mouseY = (float) y / res.scale;
-
-            if (currentScreen != null) {
-                currentScreen.mouseMove((int) mouseX , (int) mouseY);
-            }
-
-            if (unpaused()) {
-                player.turnMouse(deltaX, deltaY);
-            }
-        });
-
-        GLFW.glfwSetKeyCallback(window, (windowHandle, key, scancode, action, mods) -> {
-            // Check if the Escape key was pressed
-            if (action == GLFW.GLFW_PRESS && level != null) {
-                switch (key) {
-                    case GLFW.GLFW_KEY_ESCAPE:
-                        if (currentScreen != null && currentScreen.pausesGame()) {
-                            navigateTo(null);
-                        }
-                        else {
-                            navigateTo(new PauseMenu());
-                        }
-
-                        break;
-                    case GLFW.GLFW_KEY_R: player.resetPos();  break;
-                    case GLFW.GLFW_KEY_G:
-                        EntitySteve steve = new EntitySteve(level);
-                        steve.setPos(player.x, player.y + 5.0F, player.z);
-                        level.spawnEntity(steve);
-                        break;
-                    case GLFW.GLFW_KEY_1: player.selectedSlot = 0; break;
-                    case GLFW.GLFW_KEY_2: player.selectedSlot = 1; break;
-                    case GLFW.GLFW_KEY_3: player.selectedSlot = 2; break;
-                    case GLFW.GLFW_KEY_4: player.selectedSlot = 3; break;
-                    case GLFW.GLFW_KEY_5: player.selectedSlot = 4; break;
-                    case GLFW.GLFW_KEY_6: player.selectedSlot = 5; break;
-                    case GLFW.GLFW_KEY_7: player.selectedSlot = 6; break;
-                    case GLFW.GLFW_KEY_8: player.selectedSlot = 7; break;
-                    case GLFW.GLFW_KEY_9: player.selectedSlot = 8; break;
-                    case GLFW.GLFW_KEY_B:
-                        if (currentScreen instanceof BlockSelectionScreen) {
-                            navigateTo(null);
-                        } else if (currentScreen == null) {
-                            navigateTo(new BlockSelectionScreen());
-                        }
-
-                        break;
-                    case GLFW.GLFW_KEY_F3:
-                        showDebugInfo = !showDebugInfo;
-                        break;
-                    case GLFW.GLFW_KEY_F5:
-                        thirdPerson = !thirdPerson;
-                        break;
-                }
-            }
-        });
-
-        GLFW.glfwSetScrollCallback(window, (windowHandle, x, y) -> {
-            player.selectedSlot -= y;
-            if (player.selectedSlot < 0) player.selectedSlot = 9 + player.selectedSlot;
-            if (player.selectedSlot > 8) player.selectedSlot = (player.selectedSlot - 9) % 9;
-        });
-
-        AABB placeBlockAABB = new AABB(0, 0, 0, 0, 0, 0);
-
-        GLFW.glfwSetMouseButtonCallback(window, (windowHandle, button, action, mods) -> {
-            if (currentScreen != null) {
-                if (action == GLFW.GLFW_PRESS) {
-                    currentScreen.mouseDown((int) mouseX, (int) mouseY, button);
-                } else if (action == GLFW.GLFW_RELEASE) {
-                    currentScreen.mouseUp((int) mouseX, (int) mouseY, button);
-                }
-
-                return;
-            }
-
-            if (action == GLFW.GLFW_PRESS && level != null) {
-                switch (button) {
-                    case GLFW.GLFW_MOUSE_BUTTON_LEFT:
-                        level.setBlockID(
-                                hitResult.blockPos.x,
-                                hitResult.blockPos.y,
-                                hitResult.blockPos.z,
-                                (byte) 0
-                        );
-
-                        break;
-
-                    case GLFW.GLFW_MOUSE_BUTTON_RIGHT:
-                        int fx = hitResult.hitFace.getX(hitResult.blockPos.x);
-                        int fy = hitResult.hitFace.getY(hitResult.blockPos.y);
-                        int fz = hitResult.hitFace.getZ(hitResult.blockPos.z);
-
-                        if (level.getBlockID(fx, fy, fz) != 0) break;
-
-                        placeBlockAABB.set(fx, fy, fz, fx+1.0F, fy+1.0F, fz+1.0F);
-                        if (player.bb.intersects(placeBlockAABB)) break;
-
-                        level.setBlock(fx, fy, fz, player.hotbar[player.selectedSlot]);
-                        break;
-                }
-            }
-        });
-
+        // Display
         GLFW.glfwShowWindow(window);
         GLFW.glfwFocusWindow(window);
 
@@ -589,14 +507,17 @@ public class OmegaVoxel implements Runnable {
                 0.47f, 0.63f, 0.80f, 1.0f
         });
 
+        // Loop
         logger.info("We're ready! Started in {} milliseconds",  (System.nanoTime() - startStartupTime) / 1e6);
         while (!GLFW.glfwWindowShouldClose(window)) {
             Chunk.updatesThisFrame = 0;
 
+            // Setup
             GL11.glClearColor(0.47f, 0.63f, 0.80f, 1.0f);
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
             r.reset();
 
+            // Update
             int ticks = moveTimer.update();
             for (int i = 0; i < ticks; i++) {
                 if (unpaused()) {
@@ -612,6 +533,7 @@ public class OmegaVoxel implements Runnable {
                 }
             }
 
+            // Move camera if not paused
             if (unpaused()) {
                 float t = moveTimer.getPartialTick();
 
@@ -631,6 +553,7 @@ public class OmegaVoxel implements Runnable {
                 }
             }
 
+            // render level
             if (level != null) {
                 cam.applyProjection(width, height);
                 cam.applyViewMatrix();
@@ -644,6 +567,7 @@ public class OmegaVoxel implements Runnable {
                 r.flush();
             }
 
+            // render UI
             this.uiRenderer.begin(res);
             if (level != null) hud.render(uiRenderer);
             r.flush();
@@ -652,6 +576,7 @@ public class OmegaVoxel implements Runnable {
 
             r.flush();
 
+            // finish
             GLFW.glfwSwapBuffers(window);
             GLFW.glfwPollEvents();
 
@@ -667,7 +592,6 @@ public class OmegaVoxel implements Runnable {
             }
         }
 
-
         saveLevel();
         r.destroy();
         GLFW.glfwDestroyWindow(window);
@@ -678,13 +602,137 @@ public class OmegaVoxel implements Runnable {
             throw new RuntimeException(e);
         }
     }
+    //endregion
+    //region Event Handlers
+    private void onWindowResize(long window, int width, int height) {
+        this.width = width;
+        this.height = height;
 
+        GL11.glViewport(0, 0, width, height);
+        updateUiRes();
 
-    public static void main(String[] args) {
-        int exitCode = new CommandLine(new OmegaVoxel(800, 600)).execute(args);
-        System.exit(exitCode);
+        resizeScreen(hud);
+        if (currentScreen != null) resizeScreen(currentScreen);
     }
 
+    private void cursorMove(long window, double x, double y) {
+        if (firstMouse) {
+            lastX = x;
+            lastY = y;
+            firstMouse = false;
+        }
+
+        deltaX = (float) (x - lastX);
+        deltaY = (float) (lastY - y);
+
+        lastX = x;
+        lastY = y;
+
+        mouseX = (float) x / res.scale;
+        mouseY = (float) y / res.scale;
+
+        if (currentScreen != null) {
+            currentScreen.mouseMove((int) mouseX , (int) mouseY);
+        }
+
+        if (unpaused()) {
+            player.turnMouse(deltaX, deltaY);
+        }
+    }
+
+    private void keyEvent(long windowHandle, int key, int scancode, int action, int mods) {
+        // Check if the Escape key was pressed
+        if (action == GLFW.GLFW_PRESS && level != null) {
+            switch (key) {
+                case GLFW.GLFW_KEY_ESCAPE:
+                    if (currentScreen != null && currentScreen.pausesGame()) {
+                        navigateTo(null);
+                    }
+                    else {
+                        navigateTo(new PauseMenu());
+                    }
+
+                    break;
+                case GLFW.GLFW_KEY_R: player.resetPos();  break;
+                case GLFW.GLFW_KEY_G:
+                    EntitySteve steve = new EntitySteve(level);
+                    steve.setPos(player.x, player.y + 5.0F, player.z);
+                    level.spawnEntity(steve);
+                    break;
+                case GLFW.GLFW_KEY_1: player.selectedSlot = 0; break;
+                case GLFW.GLFW_KEY_2: player.selectedSlot = 1; break;
+                case GLFW.GLFW_KEY_3: player.selectedSlot = 2; break;
+                case GLFW.GLFW_KEY_4: player.selectedSlot = 3; break;
+                case GLFW.GLFW_KEY_5: player.selectedSlot = 4; break;
+                case GLFW.GLFW_KEY_6: player.selectedSlot = 5; break;
+                case GLFW.GLFW_KEY_7: player.selectedSlot = 6; break;
+                case GLFW.GLFW_KEY_8: player.selectedSlot = 7; break;
+                case GLFW.GLFW_KEY_9: player.selectedSlot = 8; break;
+                case GLFW.GLFW_KEY_B:
+                    if (currentScreen instanceof BlockSelectionScreen) {
+                        navigateTo(null);
+                    } else if (currentScreen == null) {
+                        navigateTo(new BlockSelectionScreen());
+                    }
+
+                    break;
+                case GLFW.GLFW_KEY_F3:
+                    showDebugInfo = !showDebugInfo;
+                    break;
+                case GLFW.GLFW_KEY_F5:
+                    thirdPerson = !thirdPerson;
+                    break;
+            }
+        }
+    }
+
+    private void scroll(long window, double x, double y) {
+        player.selectedSlot -= y;
+        if (player.selectedSlot < 0) player.selectedSlot = 9 + player.selectedSlot;
+        if (player.selectedSlot > 8) player.selectedSlot = (player.selectedSlot - 9) % 9;
+    }
+
+    private static AABB placeBlockAABB = new AABB(0, 0, 0, 0, 0, 0);
+    private void mouseClick(long windowHandle, int button, int action, int mods) {
+        if (currentScreen != null) {
+            if (action == GLFW.GLFW_PRESS) {
+                currentScreen.mouseDown((int) mouseX, (int) mouseY, button);
+            } else if (action == GLFW.GLFW_RELEASE) {
+                currentScreen.mouseUp((int) mouseX, (int) mouseY, button);
+            }
+
+            return;
+        }
+
+        if (action == GLFW.GLFW_PRESS && level != null) {
+            switch (button) {
+                case GLFW.GLFW_MOUSE_BUTTON_LEFT:
+                    level.setBlockID(
+                            hitResult.blockPos.x,
+                            hitResult.blockPos.y,
+                            hitResult.blockPos.z,
+                            (byte) 0
+                    );
+
+                    break;
+
+                case GLFW.GLFW_MOUSE_BUTTON_RIGHT:
+                    int fx = hitResult.hitFace.getX(hitResult.blockPos.x);
+                    int fy = hitResult.hitFace.getY(hitResult.blockPos.y);
+                    int fz = hitResult.hitFace.getZ(hitResult.blockPos.z);
+
+                    if (level.getBlockID(fx, fy, fz) != 0) break;
+
+                    placeBlockAABB.set(fx, fy, fz, fx+1.0F, fy+1.0F, fz+1.0F);
+                    if (player.bb.intersects(placeBlockAABB)) break;
+
+                    level.setBlock(fx, fy, fz, player.hotbar[player.selectedSlot]);
+                    break;
+            }
+        }
+    }
+    //endregion
+    //region Stats
     public int getStatChunksRendered() {
         return levelRenderer.statChunksRendered;
     }
@@ -705,5 +753,11 @@ public class OmegaVoxel implements Runnable {
 
     public int getLastFrameVertexCount() {
         return lastFrameVertexCount + getLevelVertexCount();
+    }
+    //endregion
+
+    public static void main(String[] args) {
+        int exitCode = new CommandLine(new OmegaVoxel(800, 600)).execute(args);
+        System.exit(exitCode);
     }
 }

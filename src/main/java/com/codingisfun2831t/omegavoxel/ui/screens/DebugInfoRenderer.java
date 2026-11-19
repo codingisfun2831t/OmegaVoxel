@@ -1,8 +1,8 @@
 package com.codingisfun2831t.omegavoxel.ui.screens;
 
 import com.codingisfun2831t.omegavoxel.OmegaVoxel;
-import com.codingisfun2831t.omegavoxel.entity.EntityPlayer;
 import com.codingisfun2831t.omegavoxel.Translations;
+import com.codingisfun2831t.omegavoxel.entity.EntityPlayer;
 import com.codingisfun2831t.omegavoxel.ui.UIRenderer;
 
 class DebugInfoRenderer {

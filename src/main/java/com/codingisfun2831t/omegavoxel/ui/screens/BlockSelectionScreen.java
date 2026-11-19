@@ -1,10 +1,8 @@
 package com.codingisfun2831t.omegavoxel.ui.screens;
 
-import com.codingisfun2831t.omegavoxel.Translations;
 import com.codingisfun2831t.omegavoxel.level.Block;
 import com.codingisfun2831t.omegavoxel.ui.*;
 import com.codingisfun2831t.omegavoxel.ui.widgets.Background;
-import com.codingisfun2831t.omegavoxel.ui.widgets.Button;
 import com.codingisfun2831t.omegavoxel.ui.widgets.Label;
 
 import java.util.List;

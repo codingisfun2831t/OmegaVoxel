@@ -1,7 +1,5 @@
 package com.codingisfun2831t.omegavoxel.assets;
 
-import com.codingisfun2831t.omegavoxel.assets.setup.Setup;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
@@ -13,11 +11,9 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
